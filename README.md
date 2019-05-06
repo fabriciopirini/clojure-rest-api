@@ -1,5 +1,17 @@
 # Robot _VS_ Dino
 
+## List of Endpoints available
+
+```
+GET /board
+GET /board/{col}/{row}
+
+POST /action/{col}/{row}/{action}
+POST /board/create/{size}
+POST /dino/create/{col}/{row}
+POST /robot/create/{col}/{row}
+```
+
 ## Usage
 
 All responses will have the form
@@ -13,15 +25,16 @@ All responses will have the form
 
 Subsequent response definitions will only detail the expected value of the `data field`
 
-### List all devices
+### Get board actual state
 
 **Definition**
 
-`GET /devices`
+`GET /board`
 
 **Response**
 
 - `200 OK` on success
+- `404 Not Found` if the board does not exist
 
 ```json
 [
@@ -97,9 +110,9 @@ If a device with the given identifier already exists, the existing device will b
 - `404 Not Found` if the device does not exist
 - `204 No Content` on success
 
-## License
+<!-- ## License
 
 Copyright © 2019 FIXME
 
 Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+your option) any later version. -->
