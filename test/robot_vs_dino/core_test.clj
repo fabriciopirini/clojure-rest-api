@@ -44,3 +44,11 @@
     (is (= "🄳" (get (dino/add-dino 3 2 board) (dino/get-vector-pos 3 2))))
     (is (= "⛶" (get (dino/add-dino 4 4 board) (dino/get-vector-pos 4 5))))
     (is (nil? (dino/add-dino 1 2 (dino/add-dino 1 2 board))))))
+
+(deftest perform-action-test
+  (testing "Send any of the following actions: turn left, turn right,
+           move forward, move backwards, and attack "
+    (is (= "🄳" (get (dino/add-dino 2 3 board) (dino/get-vector-pos 2 3))))
+    (is (= "🄳" (get (dino/add-dino 3 2 board) (dino/get-vector-pos 3 2))))
+    (is (= "⛶" (get (dino/add-dino 4 4 board) (dino/get-vector-pos 4 5))))
+    (is (nil? (dino/add-dino 1 2 (dino/add-dino 1 2 board))))))

@@ -81,7 +81,7 @@ If a device with the given identifier already exists, the existing device will b
 }
 ```
 
-## Lookup device details
+### Lookup device details
 
 `GET /device/<identifier>`
 
@@ -99,7 +99,7 @@ If a device with the given identifier already exists, the existing device will b
 }
 ```
 
-## Delete a device
+### Delete a device
 
 **Definition**
 
@@ -116,3 +116,5 @@ Copyright © 2019 FIXME
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version. -->
+
+## Project Decisions
