@@ -3,13 +3,13 @@
 ## List of Endpoints available
 
 ```
-GET /board
-GET /board/{col}/{row}
+GET /simulation/{id}
+GET /simulation/{id}/{posX}/{posY}
 
-POST /action/{col}/{row}/{action}
-POST /board/create/{size}
-POST /dino/create/{col}/{row}
-POST /robot/create/{col}/{row}
+POST /action/{posX}/{posY}/{action}/simulation/{id}
+POST /simulation/new
+POST /dino/new/{posX}/{posY}/simulation/{id}
+POST /robot/new/{posX}/{posY}/simulation/{id}
 ```
 
 ## Usage
@@ -29,26 +29,49 @@ Subsequent response definitions will only detail the expected value of the `data
 
 **Definition**
 
-`GET /board`
+`GET /simulation/{id}`
+
+**Parameters**
+
+- `ID` Simulation's ID
 
 **Response**
 
 - `200 OK` on success
-- `404 Not Found` if the board does not exist
+- `404 Not Found` if the simulation does not exist
 
 ```json
 [
     {
-        "identifier": "floor-lamp",
-        "name": "Floor Lamp",
-        "device_type": "switch",
-        "controller_gateway": "192.1.68.0.2"
-    },
+        "identifier": "simulation-1",
+        "name": "Simulation 1",
+        "content": []
+    }
+]
+```
+
+### Get the element on that position on board
+
+**Definition**
+
+`GET /simulation/{id}/{posX}/{posY}`
+
+**Parameters**
+
+- `ID` Simulation's ID
+- `posX` X-axis position of element
+- `posY` Y-axis position of element
+
+**Response**
+
+- `200 OK` on success
+- `404 Not Found` if the simulation does not exist
+
+```json
+[
     {
-        "identifier": "samsung-tv",
-        "name": "Living Room TV",
-        "device_type": "tv",
-        "controller_gateway": "192.168.0.9"
+        "identifier": "s{id}-x{posX}-y{posY}",
+        "content": "F",
     }
 ]
 ```
@@ -110,11 +133,11 @@ If a device with the given identifier already exists, the existing device will b
 - `404 Not Found` if the device does not exist
 - `204 No Content` on success
 
-<!-- ## License
-
-Copyright © 2019 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version. -->
-
 ## Project Decisions
+
+- Use board indexes from 1 to 2500 instead of 0 to 2499;
+- Use a 1D vector instead of implementing a new 2D data structure;
+- Use simple characters to show dinos and robots + its directions instead of
+more complex data structure;
+- Adoption of TDD technique;
+- Usage of Clojure standard testing library (clojure.test);
