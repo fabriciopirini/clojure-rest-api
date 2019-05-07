@@ -19,7 +19,7 @@
   (if (nil? board)
     "Invalid board"
     (doseq [i (range board-total-size)]
-     (if (= (rem i board-dimension) (- board-dimension 1))
+     (if (= (rem i board-dimension) (dec board-dimension))
       (println (get board i))
       (print (str (get board i) " "))))))
 

@@ -6,5 +6,6 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [proto-repl "0.3.1"]]
   :main ^:skip-aot robot-vs-dino.core
+  :uberjar-name "robot-vs-dino.jar"
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})

@@ -3,7 +3,9 @@
 ## TODO
 
 - Check Datomic
-- Check Swagger
+- Check Swagger :white_check_mark: (compojure-api)
+- Remove /new on POST Endpoints??
+- How to show simulation contents after a change??
 
 ## List of Endpoints available
 
@@ -11,10 +13,13 @@
 GET /simulation/{id}
 GET /simulation/{id}/{posX}/{posY}
 
-POST /action/{posX}/{posY}/{action}/simulation/{id}
+POST /action/simulation/{id}/{posX}/{posY}/{action}
+POST /dino/simulation/{id}/new/{posX}/{posY}
+POST /robot/simulation/{id}/new/{posX}/{posY}/{direction}
 POST /simulation/new
-POST /dino/new/{posX}/{posY}/simulation/{id}
-POST /robot/new/{posX}/{posY}/simulation/{id}
+
+DELETE /simulation/{id}
+DELETE /element/simulation/{id}
 ```
 
 ## Usage
@@ -38,19 +43,18 @@ Subsequent response definitions will only detail the expected value of the `data
 
 **Parameters**
 
-- `ID` Simulation's ID
+- `"ID":number` ID of simulation
 
 **Response**
 
 - `200 OK` on success
-- `404 Not Found` if the simulation does not exist
+- `404 Not Found` if the simulation does not exists
 
 ```json
 [
     {
-        "identifier": "simulation-1",
-        "name": "Simulation 1",
-        "content": []
+        "identifier": "simulation-{id}",
+        "simulation_state": []
     }
 ]
 ```
@@ -63,80 +67,158 @@ Subsequent response definitions will only detail the expected value of the `data
 
 **Parameters**
 
-- `ID` Simulation's ID
-- `posX` X-axis position of element
-- `posY` Y-axis position of element
+- `"ID":number` ID of simulation
+- `"posX":number` position of element on x-axis
+- `"posY":number` position of element on y-axis
 
 **Response**
 
 - `200 OK` on success
-- `404 Not Found` if the simulation does not exist
+- `404 Not Found` if the simulation does not exists
 
 ```json
 [
     {
         "identifier": "s{id}-x{posX}-y{posY}",
-        "content": "F",
+        "position_state": "F",
     }
 ]
 ```
 
-### Registering a new device
+### Sends an action to a robot on desired simulation
 
 **Definition**
 
-`POST /devices`
+`POST /action/simulation/{id}/{posX}/{posY}/{action}`
 
 **Arguments**
 
-- `"identifier":string` a globally unique identifier for this device
-- `"name":string` a friendly name for this device
-- `"device_type":string` the type of the device as understood by the client
-- `"controller_gateway":string` the IP address of the device's controller
+- `"ID":number` ID of simulation
+- `"posX":number` position of element on x-axis
+- `"posY":number` position of element on y-axis
+- `"action":string` single letter defining one action. Being those move **F**orward, move **B**ackwards, turn **R**ight, turn **L**eft or **A**ttack
 
-If a device with the given identifier already exists, the existing device will be overwritten.
-
-**Response**
-
-- `201 Created` on success
-
-```json
-{
-    "identifier": "floor-lamp",
-    "name": "Floor Lamp",
-    "device_type": "switch",
-    "controller_gateway": "192.1.68.0.2"
-}
-```
-
-### Lookup device details
-
-`GET /device/<identifier>`
+If the simulation does not exists or the position is invalid, empty or a dinosaur, the action fails and the simulation keeps unchanged.
 
 **Response**
 
-- `404 Not Found` if the device does not exist
 - `200 OK` on success
+- `403 Invalid Position` if the position is invalid, empty or a dinosaur
+- `404 Not Found` if the board was not found
 
 ```json
 {
-    "identifier": "floor-lamp",
-    "name": "Floor Lamp",
-    "device_type": "switch",
-    "controller_gateway": "192.1.68.0.2"
+    "before": "X: {posX}, Y: {posY}, direction: {old_direction}",
+    "after": "X: {new_posX}, Y: {new_posY}, direction: {new_direction}",
+    "new_simulation_state": "????"
 }
 ```
 
-### Delete a device
+### Place a new dino inside a simulation
 
 **Definition**
 
-`DELETE /devices/<identifier>`
+`POST /dino/simulation/{id}/new/{posX}/{posY}`
+
+**Arguments**
+
+- `"ID":number` ID of simulation
+- `"posX":number` position of dino on x-axis
+- `"posY":number` position of dino on y-axis
+
+
+If the simulation does not exists or the position is invalid or already taken, the request fails and the simulation keeps unchanged.
 
 **Response**
 
-- `404 Not Found` if the device does not exist
-- `204 No Content` on success
+- `200 OK` on success
+- `403 Invalid Position` if the position is invalid, empty or already taken
+- `404 Not Found` if the board was not found
+
+```json
+{
+    "new_simulation_state": []
+}
+```
+
+### Place a new robot inside a simulation
+
+**Definition**
+
+`POST /robot/simulation/{id}/new/{posX}/{posY}/{direction}`
+
+**Arguments**
+
+- `"ID":number` ID of simulation
+- `"posX":number` position of dino on x-axis
+- `"posY":number` position of dino on y-axis
+- `"direction":string` single letter defining the direction. Being those **F**orward, **B**ackwards, **R**ight, **L**eft
+
+
+If the simulation does not exists or the position is invalid or already taken, the request fails and the simulation keeps unchanged.
+
+**Response**
+
+- `200 OK` on success
+- `403 Invalid Position` if the position is invalid, empty or already taken
+- `404 Not Found` if the board was not found
+
+```json
+{
+    "new_simulation_state": []
+}
+```
+
+### Create a new simulation
+
+`POST /simulation/new`
+
+**Response**
+
+- `200 OK` on success
+- `404 Not Found` if the simulation already exists
+
+```json
+{
+    "identifier": "simulation-42",
+    "simulation_state": []
+}
+```
+
+### Delete a simulation
+
+**Definition**
+
+`DELETE /simulation/{id}`
+
+**Response**
+
+- `200 OK` on success
+- `404 Not Found` if the simulation does not exists
+
+```json
+{
+    "identifier": "simulation-{id}"
+}
+```
+
+### Delete an element inside a simulation
+
+**Definition**
+
+`DELETE /simulation/{id}`
+
+**Response**
+
+- `200 OK` on success
+- `404 Not Found` if the simulation does not exists
+
+```json
+{
+    "identifier": "simulation-{id}"
+}
+```
+
 
 ## Project Decisions
 
