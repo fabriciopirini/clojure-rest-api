@@ -206,11 +206,12 @@ If the simulation does not exists or the position is invalid or already taken, t
 
 **Definition**
 
-`DELETE /simulation/{id}`
+`DELETE /simulation/{id}/{posX}/{posY}`
 
 **Response**
 
 - `200 OK` on success
+- `403 Invalid Position` if the position is invalid or empty
 - `404 Not Found` if the simulation does not exists
 
 ```json
@@ -228,3 +229,5 @@ If the simulation does not exists or the position is invalid or already taken, t
 more complex data structure;
 - Adoption of TDD technique;
 - Usage of Clojure standard testing library (clojure.test);
+- Use Docker to run Uberjar file;
+- Use Swagger for API testing and documentation;
