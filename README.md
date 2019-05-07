@@ -1,5 +1,10 @@
 # Robot _VS_ Dino
 
+## TODO
+
+- Check Datomic
+- Check Swagger
+
 ## List of Endpoints available
 
 ```
