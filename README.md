@@ -2,24 +2,23 @@
 
 ## TODO
 
-- Check Datomic
+- Check Datomic :x: (will add too much unnecessary complexity)
 - Check Swagger :white_check_mark: (compojure-api)
-- Remove /new on POST Endpoints??
-- How to show simulation contents after a change??
 
 ## List of Endpoints available
 
 ```
+GET /simulations
 GET /simulation/{id}
 GET /simulation/{id}/{posX}/{posY}
 
 POST /action/simulation/{id}/{posX}/{posY}/{action}
-POST /dino/simulation/{id}/new/{posX}/{posY}
-POST /robot/simulation/{id}/new/{posX}/{posY}/{direction}
-POST /simulation/new
+POST /dino/simulation/{id}/{posX}/{posY}
+POST /robot/simulation/{id}/{posX}/{posY}/{direction}
+POST /simulation
 
 DELETE /simulation/{id}
-DELETE /element/simulation/{id}
+DELETE /element/simulation/{id}/{posX}/{posY}
 ```
 
 ## Usage
@@ -35,7 +34,38 @@ All responses will have the form
 
 Subsequent response definitions will only detail the expected value of the `data field`
 
-### Get board actual state
+### Get list of created simulations
+
+**Definition**
+
+`GET /simulations`
+
+**Response**
+
+- `200 OK` on success
+- `404 Not Found` if there are no simulations running
+
+```json
+[
+    {
+        "simulations_list": {
+            "simulation_1_state": [
+              "⛶", "🅃", "🄱",
+              "⛶", "⛶", "⛶",
+              "⛶", "🄳", "⛶",
+            ],
+            "simulation_2_state": [
+              "🄳", "⛶", "⛶",
+              "⛶", "🄻", "🄳",
+              "⛶", "⛶", "⛶",
+            ],
+        }
+
+    }
+]
+```
+
+### Get simulation current state
 
 **Definition**
 
@@ -54,12 +84,16 @@ Subsequent response definitions will only detail the expected value of the `data
 [
     {
         "identifier": "simulation-{id}",
-        "simulation_state": []
+        "simulation_state": [
+          "⛶", "🅃", "🄱",
+          "⛶", "⛶", "⛶",
+          "⛶", "🄳", "⛶",
+        ]
     }
 ]
 ```
 
-### Get the element on that position on board
+### Get the element in that position on board
 
 **Definition**
 
@@ -103,14 +137,18 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 **Response**
 
 - `200 OK` on success
-- `403 Invalid Position` if the position is invalid, empty or a dinosaur
+- `400 Bad Request` if the position is invalid, empty or a dinosaur
 - `404 Not Found` if the board was not found
 
 ```json
 {
     "before": "X: {posX}, Y: {posY}, direction: {old_direction}",
     "after": "X: {new_posX}, Y: {new_posY}, direction: {new_direction}",
-    "new_simulation_state": "????"
+    "new_simulation_state": [
+      "⛶", "🅃", "🄱",
+      "⛶", "⛶", "⛶",
+      "⛶", "🄳", "⛶",
+    ]
 }
 ```
 
@@ -118,7 +156,7 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 
 **Definition**
 
-`POST /dino/simulation/{id}/new/{posX}/{posY}`
+`POST /dino/simulation/{id}/{posX}/{posY}`
 
 **Arguments**
 
@@ -132,12 +170,16 @@ If the simulation does not exists or the position is invalid or already taken, t
 **Response**
 
 - `200 OK` on success
-- `403 Invalid Position` if the position is invalid, empty or already taken
+- `400 Bad Request` if the position is invalid, empty or already taken
 - `404 Not Found` if the board was not found
 
 ```json
 {
-    "new_simulation_state": []
+    "new_simulation_state": [
+      "⛶", "🅃", "🄱",
+      "⛶", "⛶", "⛶",
+      "⛶", "🄳", "⛶",
+    ]
 }
 ```
 
@@ -145,14 +187,14 @@ If the simulation does not exists or the position is invalid or already taken, t
 
 **Definition**
 
-`POST /robot/simulation/{id}/new/{posX}/{posY}/{direction}`
+`POST /robot/simulation/{id}/{posX}/{posY}/{direction}`
 
 **Arguments**
 
 - `"ID":number` ID of simulation
 - `"posX":number` position of dino on x-axis
 - `"posY":number` position of dino on y-axis
-- `"direction":string` single letter defining the direction. Being those **F**orward, **B**ackwards, **R**ight, **L**eft
+- `"direction":keyword` single letter defining the direction. Being those looking **T**op, **B**ottom, **R**ight, **L**eft
 
 
 If the simulation does not exists or the position is invalid or already taken, the request fails and the simulation keeps unchanged.
@@ -160,18 +202,22 @@ If the simulation does not exists or the position is invalid or already taken, t
 **Response**
 
 - `200 OK` on success
-- `403 Invalid Position` if the position is invalid, empty or already taken
+- `400 Bad Request` if the position is invalid, empty or already taken
 - `404 Not Found` if the board was not found
 
 ```json
 {
-    "new_simulation_state": []
+    "new_simulation_state": [
+      "⛶", "🅃", "🄱",
+      "⛶", "⛶", "⛶",
+      "⛶", "🄳", "⛶",
+    ]
 }
 ```
 
 ### Create a new simulation
 
-`POST /simulation/new`
+`POST /simulation`
 
 **Response**
 
@@ -181,7 +227,11 @@ If the simulation does not exists or the position is invalid or already taken, t
 ```json
 {
     "identifier": "simulation-42",
-    "simulation_state": []
+    "simulation_state": [
+      "⛶", "⛶", "⛶",
+      "⛶", "⛶", "⛶",
+      "⛶", "⛶", "⛶",
+    ]
 }
 ```
 
@@ -211,12 +261,17 @@ If the simulation does not exists or the position is invalid or already taken, t
 **Response**
 
 - `200 OK` on success
-- `403 Invalid Position` if the position is invalid or empty
+- `400 Bad Request` if the position is invalid or empty
 - `404 Not Found` if the simulation does not exists
 
 ```json
 {
-    "identifier": "simulation-{id}"
+    "identifier": "simulation-{id}",
+    "new_simulation_state": [
+      "⛶", "🅃", "🄱",
+      "⛶", "⛶", "⛶",
+      "⛶", "⛶", "⛶",
+    ]
 }
 ```
 
