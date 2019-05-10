@@ -1,5 +1,6 @@
 (ns robot-vs-dino.core
-  (:gen-class))
+  (:require [schema.core :as s]
+            [ring.swagger.schema :refer [coerce!]]))
 
 ;; Schemas
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -10,6 +11,12 @@
 ;                     :hot   Boolean
 ;                     (s/optional-key :description) String
 ;                     :toppings #{Topping}})
+
+; (s/defschema Board
+;              ""
+;              {:id    Long
+;               :name  s/Str
+;               :state [s/Str]})
 
 ;; Definitions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -25,11 +32,10 @@
 ;   [& args]
 ;   (println "Hello, World!"))
 
-
 ;; Board utils
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(declare inside-board?)
+(declare inside-board? get-board add-board)
 
 (defn create-board
   "Generates 50x50 board"
@@ -37,12 +43,23 @@
   (vec (repeat board-total-size "⛶")))
 
 (defn add-board
-  "Add board to simulation list"
+  "Add board to board list"
   [new-board]
-  (let [id (swap! id-seq inc)]
-        ; simulation (coerce! Pizza (assoc new-pizza :id id))]
-    (swap! board-list assoc id new-board)
-    new-board))
+  (let [id (swap! id-seq inc)
+        new-board-data {:identifier (str "simulation-" id) :simulation_state new-board}]
+        ; board (coerce! Board (assoc new-board :id id))]
+    ; {:state new-board :id id}
+    ; (assoc {new-board} :id id)))
+    (swap! board-list assoc (keyword (str id)) new-board-data)
+    new-board-data))
+    ; (assoc new-board :id id)))
+
+(defn update-board
+  "Update existing board on board list"
+  [board]
+  ; (let [board (coerce! Board board)]
+  (swap! board-list assoc (:id board) board)
+  (get-board (:id board)))
 
 (defn delete-board
   "Delete board if provided valid ID. If it is not, returns nil"
@@ -65,7 +82,8 @@
 (defn get-all-boards
   "Get list of all running boards. If none, returns nil"
   []
-  (-> board-list deref vals reverse))
+  @board-list)
+  ; (-> board-list deref vals reverse))
 
 ; (defn get-board-pos
 ;   "Returns the element position on board due to its collumn and row numbers"
@@ -75,7 +93,7 @@
 (defn get-element-pos
   "Returns the element position on vector due to its collumn and row numbers"
   [col row]
-  (dec (int (+ col(* (dec row) board-dimension)))))
+  (dec (int (+ col (* (dec row) board-dimension)))))
 
 (defn get-element
   "Returns the element from board due to its collumn and row numbers"
@@ -87,14 +105,14 @@
   pos 51 in row 2, etc"
   [pos]
   (when (inside-board? pos)
-   (int (inc (quot (dec pos) board-dimension)))))
+    (int (inc (quot (dec pos) board-dimension)))))
 
 (defn get-col-num
   "Returns which collumn the position belongs to: pos 1 in row 1,
   pos 50 in col 50, pos 51 in col 1 again, etc"
   [pos]
   (when (inside-board? pos)
-   (int (inc (rem (dec pos) board-dimension)))))
+    (int (inc (rem (dec pos) board-dimension)))))
 
 (defn get-symbol
   "Returns the element symbol to be placed on board"
@@ -109,7 +127,7 @@
   "Returns if the position is inside the board"
   [pos]
   (when (and (pos? (inc pos)) (< (inc pos) board-total-size))
-   true))
+    true))
 
 (defn is-space-available?
   "Returns if the position on the board is free"
@@ -117,7 +135,7 @@
   ; (do (println "Is the pos 'O'?" (= "O" (get board (dec pos)))))
   ; (do (println "Is it inside?" (inside-board? pos board)))
   (when (and (inside-board? pos) (= "⛶" (get board pos)))
-   true))
+    true))
 
 (defn print-board
   "Print the current board"
@@ -125,9 +143,24 @@
   (if (nil? board)
     "Invalid board"
     (doseq [i (range board-total-size)]
-     (if (= (rem i board-dimension) (dec board-dimension))
-      (println (get board i))
-      (print (str (get board i) " "))))))
+      (if (= (rem i board-dimension) (dec board-dimension))
+        (println (get board i))
+        (print (str (get board i) " "))))))
+
+(defn format-board
+  "Format the current board to send it as a response"
+  [board]
+  (if (nil? board)
+    "Invalid board"
+    (let [board-str-let ""]
+      (loop [i 0
+             board-str board-str-let]
+        ; (print board-str)
+        (if (= i board-total-size)
+          board-str
+          (if (= (rem i board-dimension) (dec board-dimension))
+            (recur (inc i) (str board-str (get board i) "\n"))
+            (recur (inc i) (str board-str (get board i) " "))))))))
 
 ;; Simulation
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -169,7 +202,7 @@
   [col row new-col new-row board]
   (when (is-space-available? (get-element-pos new-col new-row) board)
     (assoc-in
-      (assoc-in board [(get-element-pos new-col new-row)] (get-element col row board)) [(get-element-pos col row)] "⛶")))
+     (assoc-in board [(get-element-pos new-col new-row)] (get-element col row board)) [(get-element-pos col row)] "⛶")))
 
 (defn turn-element
   "Turn non-empty element from simulation to a new direction, if successful; return nil, if not"
@@ -184,9 +217,9 @@
     (let [cur-direction (get-element col row board)
           dir-tuple [cur-direction action]]
       (case dir-tuple
-            (["🅃" :F] ["🄱" :B]) (move-element col row col (dec row) board)
-            (["🅃" :B] ["🄱" :F]) (move-element col row col (inc row) board)
-            (["🄻" :F] ["🅁" :B]) (move-element col row (dec col) row board)
-            (["🄻" :B] ["🅁" :F]) (move-element col row (inc col) row board)
-            (["🅃" :R] ["🄱" :L] ["🅃" :L] ["🄱" :R] ["🄻" :R] ["🅁" :L]
-              ["🄻" :L] ["🅁" :R]) (turn-element col row dir-tuple board)))))
+        (["🅃" :F] ["🄱" :B]) (move-element col row col (dec row) board)
+        (["🅃" :B] ["🄱" :F]) (move-element col row col (inc row) board)
+        (["🄻" :F] ["🅁" :B]) (move-element col row (dec col) row board)
+        (["🄻" :B] ["🅁" :F]) (move-element col row (inc col) row board)
+        (["🅃" :R] ["🄱" :L] ["🅃" :L] ["🄱" :R] ["🄻" :R] ["🅁" :L]
+                   ["🄻" :L] ["🅁" :R]) (turn-element col row dir-tuple board)))))

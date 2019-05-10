@@ -2,8 +2,11 @@
 
 ## TODO
 
-- Check Datomic :x: (will add too much unnecessary complexity)
-- Check Swagger :white_check_mark: (compojure-api)
+- Check Swagger (compojure-api) :white_check_mark:
+- Implement update board
+- Save new boards and its updates to board_list
+- Add ID parameter to functions
+- Implement Swagger
 
 ## List of Endpoints available
 
