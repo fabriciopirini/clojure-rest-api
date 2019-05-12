@@ -5,6 +5,34 @@
 <!-- - DONE :white_check_mark: -->
 - Warn when trying to move outside the limits
 
+## Running
+
+There are 3 alternatives to run this project. In order to work these commands, all of them must be done inside the project root folder.
+
+**Due tothe addition of a method in the java.util.Collection interface on JDK 11, this project must run using JDK 9.** [Link to explanation](https://www.deps.co/blog/how-to-upgrade-clojure-projects-to-use-java-11/#java-util-collection-toarray)
+
+### Lein-ring
+
+`lein ring server`
+
+### Docker
+
+```
+docker build --tag=robot_vs_dino .
+
+docker run -p 8080:3000 robot_vs_dino
+```
+
+### Uberjar
+
+`java -jar target/uberjar/robot-vs-dino.jar`
+
+## Testing
+
+To run the implemented tests, use the following command:
+
+`lein test`
+
 ## List of Endpoints available
 
 ```
