@@ -11,17 +11,17 @@
 ## List of Endpoints available
 
 ```
-GET /simulations
-GET /simulation/{id}
-GET /simulation/{id}/{posX}/{posY}
+GET /simulation/all
+GET /simulation/{simulation-id}
+GET /simulation/{simulation-id}/{col}/{row}
 
-POST /action/simulation/{id}/{posX}/{posY}/{action}
-POST /dino/simulation/{id}/{posX}/{posY}
-POST /robot/simulation/{id}/{posX}/{posY}/{direction}
+POST /simulation/action/{simulation-id}/{col}/{row}/{action}
+POST /simulation/dino/{simulation-id}/{col}/{row}
+POST /simulation/robot/{simulation-id}/{col}/{row}/{direction}
 POST /simulation
 
-DELETE /simulation/{id}
-DELETE /element/simulation/{id}/{posX}/{posY}
+DELETE /simulation/{simulation-id}
+DELETE /simulation/element/{simulation-id}/{col}/{row}
 ```
 
 ## Usage
@@ -30,8 +30,8 @@ All responses will have the form
 
 ```json
 {
-    "data": "Mixed type holding the content of the response",
-    "message": "Description of what happened"
+  "data": "Mixed type holding the content of the response",
+  "message": "Description of what happened"
 }
 ```
 
@@ -41,42 +41,46 @@ Subsequent response definitions will only detail the expected value of the `data
 
 **Definition**
 
-`GET /simulations`
+`GET /simulation/all`
 
 **Response**
 
 - `200 OK` on success
-- `404 Not Found` if there are no simulations running
 
 ```json
-[
+{
+  "simulations_list": [
     {
-        "simulations_list": {
-            "simulation_1_state": [
-              "⛶", "🅃", "🄱",
-              "⛶", "⛶", "⛶",
-              "⛶", "🄳", "⛶",
-            ],
-            "simulation_2_state": [
-              "🄳", "⛶", "⛶",
-              "⛶", "🄻", "🄳",
-              "⛶", "⛶", "⛶",
-            ],
-        }
-
+      "id": 2,
+      "identifier": "simulation-2",
+      "simulation_state": [
+        "⛶", "🅃", "🄱",
+        "⛶", "⛶", "⛶",
+        "⛶", "🄳", "⛶",
+      ]
+    },
+    {
+      "id": 1,
+      "identifier": "simulation-1",
+      "simulation_state": [
+        "🄳", "⛶", "⛶",
+        "⛶", "🄻", "🄳",
+        "⛶", "⛶", "⛶",
+      ]
     }
-]
+  ]
+}
 ```
 
 ### Get simulation current state
 
 **Definition**
 
-`GET /simulation/{id}`
+`GET /simulation/{simulation-id}`
 
 **Parameters**
 
-- `"ID":number` ID of simulation
+- `"simulation-id":number` id of simulation
 
 **Response**
 
@@ -84,55 +88,53 @@ Subsequent response definitions will only detail the expected value of the `data
 - `404 Not Found` if the simulation does not exists
 
 ```json
-[
-    {
-        "identifier": "simulation-{id}",
-        "simulation_state": [
-          "⛶", "🅃", "🄱",
-          "⛶", "⛶", "⛶",
-          "⛶", "🄳", "⛶",
-        ]
-    }
-]
+{
+  "id": 1,
+  "identifier": "simulation-1",
+  "simulation_state": [
+    "⛶", "🅃", "🄱",
+    "⛶", "⛶", "⛶",
+    "⛶", "🄳", "⛶",
+  ]
+}
 ```
 
 ### Get the element in that position on board
 
 **Definition**
 
-`GET /simulation/{id}/{posX}/{posY}`
+`GET /simulation/{simulation-id}/{col}/{row}`
 
 **Parameters**
 
-- `"ID":number` ID of simulation
-- `"posX":number` position of element on x-axis
-- `"posY":number` position of element on y-axis
+- `"simulation-id":number` id of simulation
+- `"col":number` position of element on x-axis
+- `"row":number` position of element on y-axis
 
 **Response**
 
 - `200 OK` on success
+- `400 Bad Request` if the given position is invalid
 - `404 Not Found` if the simulation does not exists
 
 ```json
-[
-    {
-        "identifier": "s{id}-x{posX}-y{posY}",
-        "position_state": "F",
-    }
-]
+{
+  "identifier": "s1-col3-row4",
+  "position_state": "🄳",
+}
 ```
 
 ### Sends an action to a robot on desired simulation
 
 **Definition**
 
-`POST /action/simulation/{id}/{posX}/{posY}/{action}`
+`POST /simulation/action/{simulation-id}/{col}/{row}/{action}`
 
 **Arguments**
 
-- `"ID":number` ID of simulation
-- `"posX":number` position of element on x-axis
-- `"posY":number` position of element on y-axis
+- `"simulation-id":number` id of simulation
+- `"col":number` collumn to be accessed
+- `"row":number` row to be accessed
 - `"action":string` single letter defining one action. Being those move **F**orward, move **B**ackwards, turn **R**ight, turn **L**eft or **A**ttack
 
 If the simulation does not exists or the position is invalid, empty or a dinosaur, the action fails and the simulation keeps unchanged.
@@ -145,13 +147,13 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 
 ```json
 {
-    "before": "X: {posX}, Y: {posY}, direction: {old_direction}",
-    "after": "X: {new_posX}, Y: {new_posY}, direction: {new_direction}",
-    "new_simulation_state": [
-      "⛶", "🅃", "🄱",
-      "⛶", "⛶", "⛶",
-      "⛶", "🄳", "⛶",
-    ]
+  "before": "col: 1, row: 3, direction: R",
+  "after": "col: 2, row: 3, direction: R",
+  "simulation_state": [
+    "⛶", "🅃", "🄱",
+    "⛶", "⛶", "⛶",
+    "⛶", "🅁", "⛶",
+  ]
 }
 ```
 
@@ -159,13 +161,13 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 
 **Definition**
 
-`POST /dino/simulation/{id}/{posX}/{posY}`
+`POST /simulation/dino/{simulation-id}/{col}/{row}`
 
 **Arguments**
 
-- `"ID":number` ID of simulation
-- `"posX":number` position of dino on x-axis
-- `"posY":number` position of dino on y-axis
+- `"simulation-id":number` id of simulation
+- `"col":number` collumn to be accessed
+- `"row":number` row to be accessed
 
 
 If the simulation does not exists or the position is invalid or already taken, the request fails and the simulation keeps unchanged.
@@ -173,16 +175,18 @@ If the simulation does not exists or the position is invalid or already taken, t
 **Response**
 
 - `200 OK` on success
-- `400 Bad Request` if the position is invalid, empty or already taken
+- `400 Bad Request` if the position is invalid, empty or already taken or the board could not be updated on the board list
 - `404 Not Found` if the board was not found
 
 ```json
 {
-    "new_simulation_state": [
-      "⛶", "🅃", "🄱",
-      "⛶", "⛶", "⛶",
-      "⛶", "🄳", "⛶",
-    ]
+  "id": 1,
+  "identifier": "simulation-1",
+  "simulation_state": [
+    "⛶", "🅃", "🄱",
+    "⛶", "⛶", "⛶",
+    "⛶", "🄳", "⛶",
+  ]
 }
 ```
 
@@ -190,13 +194,13 @@ If the simulation does not exists or the position is invalid or already taken, t
 
 **Definition**
 
-`POST /robot/simulation/{id}/{posX}/{posY}/{direction}`
+`POST /simulation/robot/{simulation-id}/{col}/{row}/{direction}`
 
 **Arguments**
 
-- `"ID":number` ID of simulation
-- `"posX":number` position of dino on x-axis
-- `"posY":number` position of dino on y-axis
+- `"simulation-id":number` id of simulation
+- `"col":number` collumn to be accessed
+- `"row":number` row to be accessed
 - `"direction":keyword` single letter defining the direction. Being those looking **T**op, **B**ottom, **R**ight, **L**eft
 
 
@@ -210,11 +214,11 @@ If the simulation does not exists or the position is invalid or already taken, t
 
 ```json
 {
-    "new_simulation_state": [
-      "⛶", "🅃", "🄱",
-      "⛶", "⛶", "⛶",
-      "⛶", "🄳", "⛶",
-    ]
+  "simulation_state": [
+    "⛶", "🅃", "🄱",
+    "⛶", "⛶", "⛶",
+    "⛶", "🄳", "⛶",
+  ]
 }
 ```
 
@@ -229,12 +233,13 @@ If the simulation does not exists or the position is invalid or already taken, t
 
 ```json
 {
-    "identifier": "simulation-42",
-    "simulation_state": [
-      "⛶", "⛶", "⛶",
-      "⛶", "⛶", "⛶",
-      "⛶", "⛶", "⛶",
-    ]
+  "id": 42,
+  "identifier": "simulation-42",
+  "simulation_state": [
+    "⛶", "⛶", "⛶",
+    "⛶", "⛶", "⛶",
+    "⛶", "⛶", "⛶",
+  ]
 }
 ```
 
@@ -242,7 +247,11 @@ If the simulation does not exists or the position is invalid or already taken, t
 
 **Definition**
 
-`DELETE /simulation/{id}`
+`DELETE /simulation/{simulation-id}`
+
+**Arguments**
+
+- `"simulation-id":number` id of simulation
 
 **Response**
 
@@ -251,7 +260,7 @@ If the simulation does not exists or the position is invalid or already taken, t
 
 ```json
 {
-    "identifier": "simulation-{id}"
+  "identifier": "simulation-1"
 }
 ```
 
@@ -259,7 +268,13 @@ If the simulation does not exists or the position is invalid or already taken, t
 
 **Definition**
 
-`DELETE /simulation/{id}/{posX}/{posY}`
+`DELETE /simulation/{simulation-id}/{col}/{row}`
+
+**Arguments**
+
+- `"simulation-id":number` id of simulation
+- `"col":number` collumn to be accessed
+- `"row":number` row to be accessed
 
 **Response**
 
@@ -269,12 +284,13 @@ If the simulation does not exists or the position is invalid or already taken, t
 
 ```json
 {
-    "identifier": "simulation-{id}",
-    "new_simulation_state": [
-      "⛶", "🅃", "🄱",
-      "⛶", "⛶", "⛶",
-      "⛶", "⛶", "⛶",
-    ]
+  "id": 1,
+  "identifier": "simulation-1",
+  "simulation_state": [
+    "⛶", "🅃", "🄱",
+    "⛶", "⛶", "⛶",
+    "⛶", "⛶", "⛶",
+  ]
 }
 ```
 

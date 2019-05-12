@@ -12,7 +12,7 @@
 
 (deftest add-board-test
   (testing "Check if board was added to board list"
-    (is (= '#{"⛶"} (set (dino/add-board board))))))
+    (is (not= nil? (@dino/board-list (:id (dino/add-board board)))))))
 
 (deftest delete-board-test
   (testing "Check if board was deleted from board list"
@@ -25,34 +25,27 @@
                (dino/add-board board)
                (dino/add-board board)
                (dino/delete-board  1)
-               (dino/get-board 2))))))
+               (:simulation_state (dino/get-board 2)))))))
 
 (deftest reset-all-boards-test
   (testing "Check if the board list and IDs are being reset"
     (is (true? (do (dino/reset-all-boards)
-                 (dino/add-board board)
-                 (dino/add-board board)
-                 (dino/reset-all-boards)
-                 (and
-                   (zero? @dino/id-seq)
-                   (empty? @dino/board-list)))))))
+                   (dino/add-board board)
+                   (dino/add-board board)
+                   (dino/reset-all-boards)
+                   (and
+                    (zero? @dino/id-seq)
+                    (empty? @dino/board-list)))))))
 
 (deftest get-board-test
   (testing "Check if board was deleted from board list"
     (is (= board
            (do (dino/reset-all-boards)
                (dino/add-board board)
-               (dino/get-board  1))))
+               (:simulation_state (dino/get-board  1)))))
     (is (nil? (do (dino/reset-all-boards)
                   (dino/add-board board)
-                  (dino/get-board  2))))
-    (dino/reset-all-boards)))
-
-; (deftest get-board-pos-test
-;   (testing "The transformation from collumn and row to board position"
-;     (is (= 1 (dino/get-board-pos 1 1)))
-;     (is (= (int (+ (- board-dimension 3)(* (- board-dimension 3) board-dimension)))
-;            (dino/get-board-pos (- board-dimension 3) (- board-dimension 2))))))
+                  (dino/get-board  2))))))
 
 (deftest get-element-pos-test
   (testing "The transformation from collumn and row to vector position"
@@ -64,33 +57,36 @@
     (is (= "⛶" (dino/get-element 1 1 board)))
     (is (= "🅃" (dino/get-element 3 1 (dino/add-robot 3 1 board))))))
 
-(deftest get-row-num-test
-  (testing "Check the row number of a position"
-    (is (= 1 (dino/get-row-num 1)))
-    (is (= 1 (dino/get-row-num board-dimension)))
-    (is (= 2 (dino/get-row-num (inc board-dimension))))
-    (is (= 4 (dino/get-row-num (dec (* 4 board-dimension)))))))
-
-(deftest get-col-num-test
-  (testing "Check the collumn number of a position"
-    (is (= 1 (dino/get-col-num 1)))
-    (is (= 1 (dino/get-col-num (inc board-dimension))))
-    (is (= board-dimension (dino/get-col-num board-dimension)))
-    (is (= 1 (dino/get-col-num (inc board-dimension))))
-    (is (= (dec board-dimension) (dino/get-col-num (dec (* 4 board-dimension)))))))
+; (deftest get-row-num-test
+;   (testing "Check the row number of a position"
+;     (is (= 1 (dino/get-row-num 1)))
+;     (is (= 1 (dino/get-row-num board-dimension)))
+;     (is (= 2 (dino/get-row-num (inc board-dimension))))
+;     (is (= 4 (dino/get-row-num (dec (* 4 board-dimension)))))))
+;
+; (deftest get-col-num-test
+;   (testing "Check the collumn number of a position"
+;     (is (= 1 (dino/get-col-num 1)))
+;     (is (= 1 (dino/get-col-num (inc board-dimension))))
+;     (is (= board-dimension (dino/get-col-num board-dimension)))
+;     (is (= 1 (dino/get-col-num (inc board-dimension))))
+;     (is (= (dec board-dimension) (dino/get-col-num (dec (* 4 board-dimension)))))))
 
 (deftest inside-board?-test
   (testing "The position provided is inside the board")
-  (is (nil? (dino/inside-board? -1)))
-  (is (true? (dino/inside-board? 0)))
-  (is (true? (dino/inside-board? board-dimension)))
-  (is (nil? (dino/inside-board? (inc (* board-dimension board-dimension))))))
+  (is (nil? (dino/inside-board? -1 0)))
+  (is (nil? (dino/inside-board? 0 0)))
+  (is (true? (dino/inside-board? 1 1)))
+  (is (true? (dino/inside-board? board-dimension board-dimension)))
+  (is (nil? (dino/inside-board? (inc board-dimension) board-dimension)))
+  (is (nil? (dino/inside-board? board-dimension (inc board-dimension)))))
 
 (deftest is-space-available?-test
   (testing "The position is an empty space")
-  (is (true? (dino/is-space-available? 1 board)))
-  (is (nil? (dino/is-space-available? (dino/get-element-pos 3 4) (dino/add-dino 3 4 board))))
-  (is (true? (dino/is-space-available? (dino/get-element-pos 3 4) (dino/add-robot 3 3 board)))))
+  (is (true? (dino/is-space-available? 1 1 board)))
+  (is (nil? (dino/is-space-available? 3 4 (dino/add-dino 3 4 board))))
+  (is (nil? (dino/is-space-available? 3 4 (dino/add-robot 3 4 board))))
+  (is (nil? (dino/is-space-available? (inc board-dimension) 4 board))))
 
 (deftest is-robot?-test
   (testing "The position is related to a robot")
@@ -123,25 +119,26 @@
 (deftest move-element-test
   (testing "The element is being moved to a new valid position"
     (is (= ["🅃", "⛶"]
-           [(dino/get-element 2 2 (dino/move-element 2 3 2 2 (dino/add-robot 2 3 :T board))),
-            (dino/get-element 2 3 (dino/move-element 2 3 2 2 (dino/add-robot 2 3 :T board)))]))))
-    ; (is (= ["🅃", "⛶"]
-    ;        [(dino/get-element 2 2 (dino/move-element 2 3 2 2 (dino/add-robot :T 2 3 board))),
-    ;         (dino/get-element 2 3 (dino/move-element 2 3 2 2 (dino/add-robot :T 2 3 board)))]))))
-    ; (is (= "⛶" (get (dino/move-element 4 3 (dino/add-robot 4 3 board)) (dino/get-element-pos 4 3))))
-    ; (is (nil? (dino/move-element 2 3 board)))
-    ; (is (nil? (dino/move-element 2 (inc board-dimension) board)))))
+           [(dino/get-element 2 2 (dino/move-element 2 3 2 2 (dino/add-robot 2 3 :T board)))
+            (dino/get-element 2 3 (dino/move-element 2 3 2 2 (dino/add-robot 2 3 :T board)))]))
+    (is (= [nil nil]
+           [(dino/get-element (inc board-dimension) 2 (dino/move-element board-dimension 3 (inc board-dimension) 3 (dino/add-robot board-dimension 3 :T board)))
+            (dino/get-element board-dimension 2 (dino/move-element board-dimension 3 (inc board-dimension) 3 (dino/add-robot board-dimension 3 :T board)))]))))
 
+(deftest turn-element-test
+  (testing "The element is being moved to a new valid position"
+    (is (= "🅁" (dino/get-element 2 3 (dino/turn-element 2 3 ["🅃" :R] (dino/add-robot 2 3 :T board)))))
+    (is (= "🅃" (dino/get-element 5 5 (dino/turn-element 5 5 ["🅁" :L] (dino/add-robot 5 5 :R board)))))))
 
+(deftest robot-attack-test
+  (testing "A robot is attacking a valid empty space or a dino"
+    (is (not (nil? (dino/robot-attack 2 3 3 3 (dino/add-robot 2 3 :T board)))))
+    (is (= "⛶" (dino/get-element 4 2 (dino/robot-attack 4 1 4 2 (dino/add-dino 4 2 (dino/add-robot 4 1 :R board))))))
+    (is (not (nil? (dino/robot-attack board-dimension 3 (inc board-dimension) 3 (dino/add-robot board-dimension 3 :L board)))))))
 
 (deftest take-action-test
   (testing "Send any of the following actions: turn left, turn right,
            move forward and move backwards"
-    (is (= "🅃" (get (dino/take-action 2 3 :F (dino/add-robot 2 3 :T board)) (dino/get-element-pos 2 2))))
-    (is (= "🅃" (get (dino/take-action 3 3 :B (dino/add-robot 3 3 :R board)) (dino/get-element-pos 3 4))))))
-    ; (is (= "🅃" (get (dino/take-action 3 3 :B (dino/add-robot 3 3 :R board)) (dino/get-element-pos 3 4))))))
-;     (is (= "🅁" (get (dino/move-action 2 3 :R (dino/add-robot 2 3 :T board)) (dino/get-element-pos 2 3))))
-;     (is (= "🄱" (get (dino/move-action 2 3 :R (dino/add-robot 2 3 :R board)) (dino/get-element-pos 2 3))))
-;     (is (and (= "🅁" (get (dino/move-action 4 3 :F (dino/add-robot 4 3 :R board)) (dino/get-element-pos 5 3)))
-;              (= "⛶" (get (dino/move-action 4 3 :F (dino/add-robot 4 3 :R board)) (dino/get-element-pos 4 3)))))
-;     (is (nil? (dino/move-action 2 board-dimension :F (dino/add-robot 2 board-dimension :B board))))))
+    (is (= "🅃" (dino/get-element 2 2 (dino/take-action 2 3 :F (dino/add-robot 2 3 :T board)))))
+    (is (= "🅁" (dino/get-element 2 3 (dino/take-action 3 3 :B (dino/add-robot 3 3 :R board)))))
+    (is (= "⛶" (dino/get-element 4 2 (dino/take-action 4 1 :A :B (dino/add-dino 4 2 (dino/add-robot 4 1 :R board))))))))
