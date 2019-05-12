@@ -2,11 +2,7 @@
 
 ## TODO
 
-- Check Swagger (compojure-api) :white_check_mark:
-- Implement update board
-- Save new boards and its updates to board_list
-- Add ID parameter to functions
-- Implement Swagger
+- DONE :white_check_mark:
 
 ## List of Endpoints available
 
@@ -15,10 +11,11 @@ GET /simulation/all
 GET /simulation/{simulation-id}
 GET /simulation/{simulation-id}/{col}/{row}
 
-POST /simulation/action/{simulation-id}/{col}/{row}/{action}
+POST /simulation
 POST /simulation/dino/{simulation-id}/{col}/{row}
 POST /simulation/robot/{simulation-id}/{col}/{row}/{direction}
-POST /simulation
+POST /simulation/move/{simulation-id}/{col}/{row}/{action}
+POST /simulation/attack/{simulation-id}/{col}/{row}/{action}
 
 DELETE /simulation/{simulation-id}
 DELETE /simulation/element/{simulation-id}/{col}/{row}
@@ -99,7 +96,7 @@ Subsequent response definitions will only detail the expected value of the `data
 }
 ```
 
-### Get the element in that position on board
+### Get the element in that position on simulation
 
 **Definition**
 
@@ -108,8 +105,8 @@ Subsequent response definitions will only detail the expected value of the `data
 **Parameters**
 
 - `"simulation-id":number` id of simulation
-- `"col":number` position of element on x-axis
-- `"row":number` position of element on y-axis
+- `"col":number` collumn to be accessed
+- `"row":number` row to be accessed
 
 **Response**
 
@@ -124,38 +121,6 @@ Subsequent response definitions will only detail the expected value of the `data
 }
 ```
 
-### Sends an action to a robot on desired simulation
-
-**Definition**
-
-`POST /simulation/action/{simulation-id}/{col}/{row}/{action}`
-
-**Arguments**
-
-- `"simulation-id":number` id of simulation
-- `"col":number` collumn to be accessed
-- `"row":number` row to be accessed
-- `"action":string` single letter defining one action. Being those move **F**orward, move **B**ackwards, turn **R**ight, turn **L**eft or **A**ttack
-
-If the simulation does not exists or the position is invalid, empty or a dinosaur, the action fails and the simulation keeps unchanged.
-
-**Response**
-
-- `200 OK` on success
-- `400 Bad Request` if the position is invalid, empty or a dinosaur
-- `404 Not Found` if the board was not found
-
-```json
-{
-  "before": "col: 1, row: 3, direction: R",
-  "after": "col: 2, row: 3, direction: R",
-  "simulation_state": [
-    "⛶", "🅃", "🄱",
-    "⛶", "⛶", "⛶",
-    "⛶", "🅁", "⛶",
-  ]
-}
-```
 
 ### Place a new dino inside a simulation
 
@@ -175,8 +140,8 @@ If the simulation does not exists or the position is invalid or already taken, t
 **Response**
 
 - `200 OK` on success
-- `400 Bad Request` if the position is invalid, empty or already taken or the board could not be updated on the board list
-- `404 Not Found` if the board was not found
+- `400 Bad Request` if the position is invalid, empty or already taken or the simulation could not be updated on the simulation list
+- `404 Not Found` if the simulation was not found
 
 ```json
 {
@@ -210,7 +175,7 @@ If the simulation does not exists or the position is invalid or already taken, t
 
 - `200 OK` on success
 - `400 Bad Request` if the position is invalid, empty or already taken
-- `404 Not Found` if the board was not found
+- `404 Not Found` if the simulation was not found
 
 ```json
 {
@@ -239,6 +204,72 @@ If the simulation does not exists or the position is invalid or already taken, t
     "⛶", "⛶", "⛶",
     "⛶", "⛶", "⛶",
     "⛶", "⛶", "⛶",
+  ]
+}
+```
+
+### Move/rotate a robot inside an existing simulation
+
+**Definition**
+
+`POST /simulation/instruction/{simulation-id}/{col}/{row}/{action}`
+
+**Arguments**
+
+- `"simulation-id":number` id of simulation
+- `"col":number` collumn to be accessed
+- `"row":number` row to be accessed
+- `"action":string` single letter defining one action. Being those move **F**orward, move **B**ackwards, turn **R**ight, turn **L**eft.
+
+If the simulation does not exists or the position is invalid, empty or a dinosaur, the action fails and the simulation keeps unchanged.
+
+**Response**
+
+- `200 OK` on success
+- `400 Bad Request` if the position is invalid, empty or a dinosaur
+- `404 Not Found` if the simulation was not found
+
+```json
+{
+  "before": "col: 1, row: 3, direction: R",
+  "after": "col: 2, row: 3, direction: R",
+  "simulation_state": [
+    "⛶", "🅃", "🄱",
+    "⛶", "⛶", "⛶",
+    "⛶", "🅁", "⛶",
+  ]
+}
+```
+
+### Sends an action to a robot on desired simulation
+
+**Definition**
+
+`POST /simulation/action/{simulation-id}/{col}/{row}/{action}`
+
+**Arguments**
+
+- `"simulation-id":number` id of simulation
+- `"col":number` collumn to be accessed
+- `"row":number` row to be accessed
+- `"action":string` single letter defining one action. Being those move **F**orward, move **B**ackwards, turn **R**ight, turn **L**eft or **A**ttack
+
+If the simulation does not exists or the position is invalid, empty or a dinosaur, the action fails and the simulation keeps unchanged.
+
+**Response**
+
+- `200 OK` on success
+- `400 Bad Request` if the position is invalid, empty or a dinosaur
+- `404 Not Found` if the simulation was not found
+
+```json
+{
+  "before": "col: 1, row: 3, direction: R",
+  "after": "col: 2, row: 3, direction: R",
+  "simulation_state": [
+    "⛶", "🅃", "🄱",
+    "⛶", "⛶", "⛶",
+    "⛶", "🅁", "⛶",
   ]
 }
 ```
@@ -297,7 +328,7 @@ If the simulation does not exists or the position is invalid or already taken, t
 
 ## Project Decisions
 
-- Use board indexes from 1 to 2500 instead of 0 to 2499;
+- Use simulation indexes from 1 to 2500 instead of 0 to 2499;
 - Use a 1D vector instead of implementing a new 2D data structure;
 - Use simple characters to show dinos and robots + its directions instead of
 more complex data structure;

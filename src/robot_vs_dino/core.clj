@@ -43,8 +43,9 @@
 (defn delete-board
   "Delete board if provided valid ID. If it is not, returns nil"
   [id]
-  (swap! board-list dissoc (keyword (str id)))
-  nil)
+  (when-not (nil? (get-board id))
+    (swap! board-list dissoc id)))
+
 
 (defn reset-all-boards
   "Delete all simulations and reset the ID"
@@ -170,7 +171,8 @@
   [col row board]
   (when (and (inside-board? col row)
              (not= "⛶" (get-element col row board)))
-    (assoc-in board [(get-element-pos col row)] "⛶")))
+    (assoc-in board [:simulation_state]
+              (assoc-in (:simulation_state board) [(get-element-pos col row)] "⛶"))))
 
 (defn move-element
   "Move non-empty element from simulation to a new position, if successful; return nil, if not"
@@ -201,15 +203,16 @@
    (when (is-robot? col row board)
      (let [cur-direction (get-element col row board)
            dir-tuple [cur-direction action]]
-       (case dir-tuple
-         (["🅃" :F] ["🄱" :B]) (move-element col row col (dec row) board)
-         (["🅃" :B] ["🄱" :F]) (move-element col row col (inc row) board)
-         (["🄻" :F] ["🅁" :B]) (move-element col row (dec col) row board)
-         (["🄻" :B] ["🅁" :F]) (move-element col row (inc col) row board)
-         (["🅃" :R] ["🄱" :L]
-                    ["🅃" :L] ["🄱" :R]
-                    ["🄻" :R] ["🅁" :L]
-                    ["🄻" :L] ["🅁" :R]) (turn-element col row dir-tuple board)))))
+       (when-not (nil? cur-direction)
+         (case dir-tuple
+           (["🅃" :F] ["🄱" :B]) (move-element col row col (dec row) board)
+           (["🅃" :B] ["🄱" :F]) (move-element col row col (inc row) board)
+           (["🄻" :F] ["🅁" :B]) (move-element col row (dec col) row board)
+           (["🄻" :B] ["🅁" :F]) (move-element col row (inc col) row board)
+           (["🅃" :R] ["🄱" :L]
+                      ["🅃" :L] ["🄱" :R]
+                      ["🄻" :R] ["🅁" :L]
+                      ["🄻" :L] ["🅁" :R]) (turn-element col row dir-tuple board))))))
   ([col row attack direction board]
    (when (is-robot? col row board)
      (let [att-tuple [attack direction]]
