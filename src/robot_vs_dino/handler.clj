@@ -4,6 +4,11 @@
             [robot-vs-dino.core :as dino]
             [schema.core :as s]))
 
+(s/defschema Board
+  {:id Long
+   :identifier s/Str
+   :simulation_state s/Str})
+
 (def app
   (api
    {:swagger
@@ -15,6 +20,16 @@
 
    (context "/simulation" []
             :tags ["simulation"]
+
+            (GET "/test" []
+                 :return Board
+                 :summary "get all simulations"
+                 (let [board (dino/create-board)]
+                   (ok {:id (:id board)
+                        :identifier (:identifier board)
+                        :simulation_state (dino/format-board board)})))
+
+
 
             (GET "/all" []
                  :summary "get all simulations"

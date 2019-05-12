@@ -105,19 +105,20 @@
           (println (get board i))
           (print (str (get board i) " ")))))))
 
-; (defn format-board
-;   "Format the current board to send it as a response"
-;   [board]
-;   (if (nil? board)
-;     "Invalid board"
-;     (let [board-str-let ""]
-;       (loop [i 0
-;              board-str board-str-let]
-;         (if (= i board-total-size)
-;           board-str
-;           (if (= (rem i board-dimension) (dec board-dimension))
-;             (recur (inc i) (str board-str (get board i) "\n"))
-;             (recur (inc i) (str board-str (get board i) " "))))))))
+(defn format-board
+  "Format the current board to send it as a response"
+  [board]
+  (let [board (:simulation_state board)]
+    (if (nil? board)
+      "Invalid board"
+      (let [board-str-let ""]
+        (loop [i 0
+               board-str board-str-let]
+          (if (= i board-total-size)
+            board-str
+            (if (= (rem i board-dimension) (dec board-dimension))
+              (recur (inc i) (str board-str (get board i) "\n"))
+              (recur (inc i) (str board-str (get board i) " ")))))))))
 
 
 ;; Simulation
