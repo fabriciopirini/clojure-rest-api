@@ -1,18 +1,15 @@
 (ns robot-vs-dino.core)
 
+
 ;; Definitions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defonce board-dimension 5) ; Less than 5 will break some tests due to hardcoded values
+(defonce board-dimension 50)
 (defonce board-total-size (* board-dimension board-dimension))
 
 (defonce id-seq (atom 0))
 (defonce board-list (atom (array-map)))
 
-; (defn -main
-;   "I don't do a whole lot ... yet."
-;   [& args]
-;   (println "Hello, World!"))
 
 ;; Board utils
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -63,7 +60,6 @@
 (defn get-all-boards
   "Get list of all running boards. If none, returns nil"
   []
-  ; @board-list)
   (-> board-list deref vals reverse))
 
 (defn get-element-pos
@@ -76,20 +72,6 @@
   [col row board]
   (when (inside-board? col row)
     (get (:simulation_state board) (get-element-pos col row))))
-
-; (defn get-row-num
-;   "Returns which row the position belongs to: pos 1 in row 1,
-;   pos 51 in row 2, etc"
-;   [pos]
-;   (when (inside-board? pos)
-;     (int (inc (quot (dec pos) board-dimension)))))
-;
-; (defn get-col-num
-;   "Returns which collumn the position belongs to: pos 1 in row 1,
-;   pos 50 in col 50, pos 51 in col 1 again, etc"
-;   [pos]
-;   (when (inside-board? pos)
-;     (int (inc (rem (dec pos) board-dimension)))))
 
 (defn get-symbol
   "Returns the element symbol to be placed on board"
@@ -136,6 +118,7 @@
 ;           (if (= (rem i board-dimension) (dec board-dimension))
 ;             (recur (inc i) (str board-str (get board i) "\n"))
 ;             (recur (inc i) (str board-str (get board i) " "))))))))
+
 
 ;; Simulation
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

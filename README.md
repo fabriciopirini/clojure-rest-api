@@ -2,7 +2,8 @@
 
 ## TODO
 
-- DONE :white_check_mark:
+<!-- - DONE :white_check_mark: -->
+- Warn when trying to move outside the limits
 
 ## List of Endpoints available
 

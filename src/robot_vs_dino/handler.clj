@@ -4,18 +4,6 @@
             [robot-vs-dino.core :as dino]
             [schema.core :as s]))
 
-; (defn get-board
-;   [id]
-;   (robot-vs-dino.core/get-board id))
-;
-; (defn add-dino
-;   [col row board]
-;   (robot-vs-dino.core/add-dino col row board))
-;
-; (defn update-board
-;   [board]
-;   (robot-vs-dino.core/update-board board))
-
 (def app
   (api
    {:swagger
@@ -152,82 +140,5 @@
                        (bad-request "Position is invalid or empty")
                        (if (nil? updated)
                          (bad-request "The simulation could not be updated")
-                         (ok {:data removed-element
+                         (ok {:data updated
                               :message "Element was deleted successfully"})))))))))
-
-   ;          (POST "/minus" []
-   ;                :return Total
-   ;                :body-params [x :- Long, y :- Long]
-   ;                :summary "x-y with body-parameters"
-   ;                (ok {:total (- x y)}))
-   ;
-   ;          (GET "/times/:x/:y" []
-   ;               :return Total
-   ;               :path-params [x :- Long, y :- Long]
-   ;               :summary "x*y with path-parameters"
-   ;               (ok {:total (* x y)}))
-   ;
-   ;          (GET "/power" []
-   ;               :return Total
-   ;               :header-params [x :- Long, y :- Long]
-   ;               :summary "x^y with header-parameters"
-   ;               (ok {:total (long (Math/pow x y))})))
-   ;
-   ; (context "/echo" []
-   ;          :tags ["echo"]
-   ;
-   ;          (GET "/request" req
-   ;               (ok (dissoc req :body)))
-   ;
-   ;          (GET "/pizza" []
-   ;               :return NewSingleToppingPizza
-   ;               :query [pizza NewSingleToppingPizza]
-   ;               :summary "get echo of a pizza"
-   ;               (ok pizza))
-   ;
-   ;          (PUT "/anonymous" []
-   ;               :return [{:secret Boolean s/Keyword s/Any}]
-   ;               :body [body [{:secret Boolean s/Keyword s/Any}]]
-   ;               (ok body))
-   ;
-   ;          (GET "/hello" []
-   ;               :return String
-   ;               :query-params [name :- String]
-   ;               (ok (str "Hello, " name)))
-   ;
-   ;          (POST "/pizza" []
-   ;                :return NewSingleToppingPizza
-   ;                :body [pizza NewSingleToppingPizza]
-   ;                :summary "post echo of a pizza"
-   ;                (ok pizza)))
-   ;
-   ; (context "/pizzas" []
-   ;          :tags ["pizza"]
-   ;
-   ;          (GET "/" []
-   ;               :return [Pizza]
-   ;               :summary "Gets all Pizzas"
-   ;               (ok (get-pizzas)))
-   ;
-   ;          (POST "/" []
-   ;                :return Pizza
-   ;                :body [pizza NewPizza {:description "new pizza"}]
-   ;                :summary "Adds a pizza"
-   ;                (ok (add! pizza)))
-   ;
-   ;          (PUT "/" []
-   ;               :return Pizza
-   ;               :body [pizza Pizza]
-   ;               :summary "Updates a pizza"
-   ;               (ok (update! pizza)))
-   ;
-   ;          (GET "/:id" []
-   ;               :return Pizza
-   ;               :path-params [id :- Long]
-   ;               :summary "Gets a pizza"
-   ;               (ok (get-pizza id)))
-   ;
-   ;          (DELETE "/:id" []
-   ;                  :path-params [id :- Long]
-   ;                  :summary "Deletes a Pizza"
-   ;                  (ok (delete! id))))))
