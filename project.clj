@@ -1,5 +1,5 @@
-(defproject robot-vs-dino "0.1.0-SNAPSHOT"
-            :description "FIXME: write description"
+(defproject robot-vs-dino "1.0.0"
+            :description "Application to simulate a fight between Robots and Dinosaurs"
             :dependencies [[org.clojure/clojure "1.10.0"]
                            [metosin/compojure-api "1.1.12"]
                            [proto-repl "0.3.1"]]

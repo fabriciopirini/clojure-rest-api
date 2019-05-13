@@ -4,7 +4,7 @@
 ;; Definitions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defonce board-dimension 50)
+(defonce board-dimension 5)
 (defonce board-total-size (* board-dimension board-dimension))
 
 (defonce id-seq (atom 0))
@@ -20,7 +20,7 @@
   "Generates 50x50 board"
   []
   (let [id (swap! id-seq inc)]
-    {:id id :identifier (str "simulation-" id) :simulation_state (vec (repeat board-total-size "⛶"))}))
+    {:id id :identifier (str "simulation-" id) :currentState (vec (repeat board-total-size "□"))}))
 
 (defn add-board
   "Add board to board list"
@@ -71,15 +71,15 @@
   "Returns the element from board due to its collumn and row numbers"
   [col row board]
   (when (inside-board? col row)
-    (get (:simulation_state board) (get-element-pos col row))))
+    (get (:currentState board) (get-element-pos col row))))
 
 (defn get-symbol
   "Returns the element symbol to be placed on board"
   [letter]
-  (def letter-map {:T "🅃"
-                   :B "🄱"
-                   :L "🄻"
-                   :R "🅁"})
+  (def letter-map {:T "˄"
+                   :B "˅"
+                   :L "˂"
+                   :R "˃"})
   (get letter-map letter))
 
 (defn inside-board?
@@ -91,13 +91,13 @@
 (defn is-space-available?
   "Returns if the position on the board is free"
   [col row board]
-  (when (and (inside-board? col row) (= "⛶" (get (:simulation_state board) (get-element-pos col row))))
+  (when (and (inside-board? col row) (= "□" (get (:currentState board) (get-element-pos col row))))
     true))
 
 (defn print-board
   "Print the current board"
   [board]
-  (let [board (:simulation_state board)]
+  (let [board (:currentState board)]
     (if (nil? board)
       "Invalid board"
       (doseq [i (range board-total-size)]
@@ -108,7 +108,7 @@
 (defn format-board
   "Format the current board to send it as a response"
   [board]
-  (let [board (:simulation_state board)]
+  (let [board (:currentState board)]
     (if (nil? board)
       "Invalid board"
       (let [board-str-let ""]
@@ -120,6 +120,22 @@
               (recur (inc i) (str board-str (get board i) "\n"))
               (recur (inc i) (str board-str (get board i) " ")))))))))
 
+(defn format-board-list
+  "Format the board list to send it as a response"
+  []
+  (let [board-list (vec (get-all-boards))]
+    (if (empty? board-list)
+      nil
+      (loop [i 0
+             new-list board-list]
+        (if (= i (count board-list))
+          new-list
+          (recur (inc i)
+                 (->> (get new-list i)
+                      (format-board)
+                      (assoc-in new-list [i :currentState]))))))))
+
+
 
 ;; Simulation
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -129,7 +145,7 @@
   [col row board]
   (let [element (get-element col row board)]
     (when (and (inside-board? col row)
-               (and (not= "🄳" element)) (not= "⛶" element))
+               (and (not= "D" element)) (not= "□" element))
       true)))
 
 (defn add-robot
@@ -139,46 +155,46 @@
   ([col row facing board]
    (when (and (is-space-available? col row board)
               (not (nil? (get-symbol facing))))
-     (assoc-in board [:simulation_state]
-               (assoc-in (:simulation_state board) [(get-element-pos col row)] (get-symbol facing))))))
+     (assoc-in board [:currentState]
+               (assoc-in (:currentState board) [(get-element-pos col row)] (get-symbol facing))))))
 
 (defn add-dino
   "Returns board with new element positioned on X collumn and Y row,
   if successful; return nil, if not"
   [col row board]
   (when (is-space-available? col row board)
-    (assoc-in board [:simulation_state]
-              (assoc-in (:simulation_state board) [(get-element-pos col row)] "🄳"))))
+    (assoc-in board [:currentState]
+              (assoc-in (:currentState board) [(get-element-pos col row)] "D"))))
 
 (defn remove-element
   "Returns board with non-empty element positioned on X collumn and Y row replaced by an empty one, if successful; return nil, if not"
   [col row board]
   (when (and (inside-board? col row)
-             (not= "⛶" (get-element col row board)))
-    (assoc-in board [:simulation_state]
-              (assoc-in (:simulation_state board) [(get-element-pos col row)] "⛶"))))
+             (not= "□" (get-element col row board)))
+    (assoc-in board [:currentState]
+              (assoc-in (:currentState board) [(get-element-pos col row)] "□"))))
 
 (defn move-element
   "Move non-empty element from simulation to a new position, if successful; return nil, if not"
   [col row new-col new-row board]
   (when (is-space-available? new-col new-row board)
-    (assoc-in board [:simulation_state]
+    (assoc-in board [:currentState]
       (assoc-in
-        (assoc-in (:simulation_state board) [(get-element-pos new-col new-row)] (get-element col row board)) [(get-element-pos col row)] "⛶"))))
+        (assoc-in (:currentState board) [(get-element-pos new-col new-row)] (get-element col row board)) [(get-element-pos col row)] "□"))))
 
 (defn turn-element
   "Turn non-empty element from simulation to a new direction, if successful; return nil, if not"
   [col row dir-tuple board]
-  (let [direction-map {["🅃" :R] :R, ["🄱" :L] :R, ["🅃" :L] :L, ["🄱" :R] :L, ["🄻" :R] :T, ["🅁" :L] :T, ["🄻" :L] :B, ["🅁" :R] :B}]
-    (assoc-in board [:simulation_state]
-              (assoc-in (:simulation_state board) [(get-element-pos col row)] (get-symbol (direction-map dir-tuple))))))
+  (let [direction-map {["˄" :R] :R, ["˅" :L] :R, ["˄" :L] :L, ["˅" :R] :L, ["˂" :R] :T, ["˃" :L] :T, ["˂" :L] :B, ["˃" :R] :B}]
+    (assoc-in board [:currentState]
+              (assoc-in (:currentState board) [(get-element-pos col row)] (get-symbol (direction-map dir-tuple))))))
 
 (defn robot-attack
   "Robot attack the first position on a certain direction. If it has a dino, it is destroyed; If not, nothing happens and the board is returned"
   [col row att-col att-row board]
-  (if (and (inside-board? att-col att-row) (= "🄳" (get-element att-col att-row board)))
-    (assoc-in board [:simulation_state]
-              (assoc-in (:simulation_state board) [(get-element-pos att-col att-row)] "⛶"))
+  (if (and (inside-board? att-col att-row) (= "D" (get-element att-col att-row board)))
+    (assoc-in board [:currentState]
+              (assoc-in (:currentState board) [(get-element-pos att-col att-row)] "□"))
     board))
 
 (defn take-action
@@ -189,14 +205,11 @@
            dir-tuple [cur-direction action]]
        (when-not (nil? cur-direction)
          (case dir-tuple
-           (["🅃" :F] ["🄱" :B]) (move-element col row col (dec row) board)
-           (["🅃" :B] ["🄱" :F]) (move-element col row col (inc row) board)
-           (["🄻" :F] ["🅁" :B]) (move-element col row (dec col) row board)
-           (["🄻" :B] ["🅁" :F]) (move-element col row (inc col) row board)
-           (["🅃" :R] ["🄱" :L]
-                      ["🅃" :L] ["🄱" :R]
-                      ["🄻" :R] ["🅁" :L]
-                      ["🄻" :L] ["🅁" :R]) (turn-element col row dir-tuple board))))))
+           (["˄" :F] ["˅" :B]) (move-element col row col (dec row) board)
+           (["˄" :B] ["˅" :F]) (move-element col row col (inc row) board)
+           (["˂" :F] ["˃" :B]) (move-element col row (dec col) row board)
+           (["˂" :B] ["˃" :F]) (move-element col row (inc col) row board)
+           (["˄" :R] ["˅" :L] ["˄" :L] ["˅" :R] ["˂" :R] ["˃" :L] ["˂" :L] ["˃" :R]) (turn-element col row dir-tuple board))))))
   ([col row attack direction board]
    (when (is-robot? col row board)
      (let [att-tuple [attack direction]]

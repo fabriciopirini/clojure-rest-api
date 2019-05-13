@@ -5,17 +5,19 @@
 <!-- - DONE :white_check_mark: -->
 - Warn when trying to move outside the limits
 
-## Running
+## How to Run
 
-There are 3 alternatives to run this project. In order to work these commands, all of them must be done inside the project root folder.
+There are 3 alternatives to run this project. For these commands to work, they must all be run inside the project root folder.
 
-**Due tothe addition of a method in the java.util.Collection interface on JDK 11, this project must run using JDK 9.** [Link to explanation](https://www.deps.co/blog/how-to-upgrade-clojure-projects-to-use-java-11/#java-util-collection-toarray)
+**Due to the addition of a method in the java.util.Collection interface on JDK 11, this project must run using JDK 9.** [Link to explanation](https://www.deps.co/blog/how-to-upgrade-clojure-projects-to-use-java-11/#java-util-collection-toarray)
 
-### Lein-ring
+### Starting a web server
 
-`lein ring server`
+```
+lein ring server
+```
 
-### Docker
+### Running it in a container with Docker
 
 ```
 docker build --tag=robot_vs_dino .
@@ -23,31 +25,43 @@ docker build --tag=robot_vs_dino .
 docker run -p 8080:3000 robot_vs_dino
 ```
 
-### Uberjar
+### Executable jar file
 
-`java -jar target/uberjar/robot-vs-dino.jar`
+Lein-Ring can generate executable jar files for deployment purposes:
+
+```
+lein ring uberjar
+```
+
+This generates a jar file with all dependencies and execute it with:
+
+```
+java -jar target/uberjar/robot-vs-dino.jar
+```
 
 ## Testing
 
 To run the implemented tests, use the following command:
 
-`lein test`
+```
+lein test
+```
 
 ## List of Endpoints available
 
 ```
-GET /simulation/all
-GET /simulation/{simulation-id}
-GET /simulation/{simulation-id}/{col}/{row}
+GET /simulations
+GET /simulations/{simulationId}
+GET /simulations/{simulationId}/elements/{col}/{row}
 
-POST /simulation
-POST /simulation/dino/{simulation-id}/{col}/{row}
-POST /simulation/robot/{simulation-id}/{col}/{row}/{direction}
-POST /simulation/move/{simulation-id}/{col}/{row}/{action}
-POST /simulation/attack/{simulation-id}/{col}/{row}/{action}
+POST /simulations
+POST /simulations/{simulationId}/dinos/{col}/{row}
+POST /simulations/{simulationId}/robots/{col}/{row}/{direction}
+POST /simulations/{simulationId}/instructions/{col}/{row}/{action}
+POST /simulations/{simulationId}/attacks/{col}/{row}/{action}
 
-DELETE /simulation/{simulation-id}
-DELETE /simulation/element/{simulation-id}/{col}/{row}
+DELETE /simulations/{simulationId}
+DELETE /simulations/{simulationId}/elements/{col}/{row}
 ```
 
 ## Usage
@@ -67,7 +81,7 @@ Subsequent response definitions will only detail the expected value of the `data
 
 **Definition**
 
-`GET /simulation/all`
+`GET /simulations`
 
 **Response**
 
@@ -79,7 +93,7 @@ Subsequent response definitions will only detail the expected value of the `data
     {
       "id": 2,
       "identifier": "simulation-2",
-      "simulation_state": [
+      "currentState": [
         "⛶", "🅃", "🄱",
         "⛶", "⛶", "⛶",
         "⛶", "🄳", "⛶",
@@ -88,7 +102,7 @@ Subsequent response definitions will only detail the expected value of the `data
     {
       "id": 1,
       "identifier": "simulation-1",
-      "simulation_state": [
+      "currentState": [
         "🄳", "⛶", "⛶",
         "⛶", "🄻", "🄳",
         "⛶", "⛶", "⛶",
@@ -102,11 +116,11 @@ Subsequent response definitions will only detail the expected value of the `data
 
 **Definition**
 
-`GET /simulation/{simulation-id}`
+`GET /simulations/{simulationId}`
 
 **Parameters**
 
-- `"simulation-id":number` id of simulation
+- `"simulationId":number` id of simulation
 
 **Response**
 
@@ -117,7 +131,7 @@ Subsequent response definitions will only detail the expected value of the `data
 {
   "id": 1,
   "identifier": "simulation-1",
-  "simulation_state": [
+  "currentState": [
     "⛶", "🅃", "🄱",
     "⛶", "⛶", "⛶",
     "⛶", "🄳", "⛶",
@@ -129,11 +143,11 @@ Subsequent response definitions will only detail the expected value of the `data
 
 **Definition**
 
-`GET /simulation/{simulation-id}/{col}/{row}`
+`GET /simulations/{simulationId}/elements/{col}/{row}`
 
 **Parameters**
 
-- `"simulation-id":number` id of simulation
+- `"simulationId":number` id of simulation
 - `"col":number` collumn to be accessed
 - `"row":number` row to be accessed
 
@@ -155,11 +169,11 @@ Subsequent response definitions will only detail the expected value of the `data
 
 **Definition**
 
-`POST /simulation/dino/{simulation-id}/{col}/{row}`
+`POST /simulations/dino/{simulationId}/{col}/{row}`
 
 **Arguments**
 
-- `"simulation-id":number` id of simulation
+- `"simulationId":number` id of simulation
 - `"col":number` collumn to be accessed
 - `"row":number` row to be accessed
 
@@ -176,7 +190,7 @@ If the simulation does not exists or the position is invalid or already taken, t
 {
   "id": 1,
   "identifier": "simulation-1",
-  "simulation_state": [
+  "currentState": [
     "⛶", "🅃", "🄱",
     "⛶", "⛶", "⛶",
     "⛶", "🄳", "⛶",
@@ -188,11 +202,11 @@ If the simulation does not exists or the position is invalid or already taken, t
 
 **Definition**
 
-`POST /simulation/robot/{simulation-id}/{col}/{row}/{direction}`
+`POST /simulations/robot/{simulationId}/{col}/{row}/{direction}`
 
 **Arguments**
 
-- `"simulation-id":number` id of simulation
+- `"simulationId":number` id of simulation
 - `"col":number` collumn to be accessed
 - `"row":number` row to be accessed
 - `"direction":keyword` single letter defining the direction. Being those looking **T**op, **B**ottom, **R**ight, **L**eft
@@ -208,7 +222,7 @@ If the simulation does not exists or the position is invalid or already taken, t
 
 ```json
 {
-  "simulation_state": [
+  "currentState": [
     "⛶", "🅃", "🄱",
     "⛶", "⛶", "⛶",
     "⛶", "🄳", "⛶",
@@ -218,7 +232,7 @@ If the simulation does not exists or the position is invalid or already taken, t
 
 ### Create a new simulation
 
-`POST /simulation`
+`POST /simulations`
 
 **Response**
 
@@ -229,7 +243,7 @@ If the simulation does not exists or the position is invalid or already taken, t
 {
   "id": 42,
   "identifier": "simulation-42",
-  "simulation_state": [
+  "currentState": [
     "⛶", "⛶", "⛶",
     "⛶", "⛶", "⛶",
     "⛶", "⛶", "⛶",
@@ -241,11 +255,11 @@ If the simulation does not exists or the position is invalid or already taken, t
 
 **Definition**
 
-`POST /simulation/instruction/{simulation-id}/{col}/{row}/{action}`
+`POST /simulations/instruction/{simulationId}/{col}/{row}/{action}`
 
 **Arguments**
 
-- `"simulation-id":number` id of simulation
+- `"simulationId":number` id of simulation
 - `"col":number` collumn to be accessed
 - `"row":number` row to be accessed
 - `"action":string` single letter defining one action. Being those move **F**orward, move **B**ackwards, turn **R**ight, turn **L**eft.
@@ -262,7 +276,7 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 {
   "before": "col: 1, row: 3, direction: R",
   "after": "col: 2, row: 3, direction: R",
-  "simulation_state": [
+  "currentState": [
     "⛶", "🅃", "🄱",
     "⛶", "⛶", "⛶",
     "⛶", "🅁", "⛶",
@@ -274,11 +288,11 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 
 **Definition**
 
-`POST /simulation/action/{simulation-id}/{col}/{row}/{action}`
+`POST /simulations/action/{simulationId}/{col}/{row}/{action}`
 
 **Arguments**
 
-- `"simulation-id":number` id of simulation
+- `"simulationId":number` id of simulation
 - `"col":number` collumn to be accessed
 - `"row":number` row to be accessed
 - `"action":string` single letter defining one action. Being those move **F**orward, move **B**ackwards, turn **R**ight, turn **L**eft or **A**ttack
@@ -295,7 +309,7 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 {
   "before": "col: 1, row: 3, direction: R",
   "after": "col: 2, row: 3, direction: R",
-  "simulation_state": [
+  "currentState": [
     "⛶", "🅃", "🄱",
     "⛶", "⛶", "⛶",
     "⛶", "🅁", "⛶",
@@ -307,11 +321,11 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 
 **Definition**
 
-`DELETE /simulation/{simulation-id}`
+`DELETE /simulations/{simulationId}`
 
 **Arguments**
 
-- `"simulation-id":number` id of simulation
+- `"simulationId":number` id of simulation
 
 **Response**
 
@@ -328,11 +342,11 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 
 **Definition**
 
-`DELETE /simulation/{simulation-id}/{col}/{row}`
+`DELETE /simulations/{simulationId}/{col}/{row}`
 
 **Arguments**
 
-- `"simulation-id":number` id of simulation
+- `"simulationId":number` id of simulation
 - `"col":number` collumn to be accessed
 - `"row":number` row to be accessed
 
@@ -346,7 +360,7 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 {
   "id": 1,
   "identifier": "simulation-1",
-  "simulation_state": [
+  "currentState": [
     "⛶", "🅃", "🄱",
     "⛶", "⛶", "⛶",
     "⛶", "⛶", "⛶",
