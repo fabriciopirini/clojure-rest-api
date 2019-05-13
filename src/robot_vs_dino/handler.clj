@@ -15,16 +15,16 @@
    :identifier s/Str
    :currentState [s/Str]})
 
-(s/defschema FormattedBoard
-  {:data {:id Long
-          :identifier s/Str
-          :currentState s/Str}
-   :message s/Str})
+; (s/defschema FormattedBoard
+;   {:data {:id Long
+;           :identifier s/Str
+;           :currentState s/Str}
+;    :message s/Str})
 
-(s/defschema FormattedBoardList
-  {:id Long
-   :identifier s/Str
-   :currentState s/Str})
+; (s/defschema FormattedBoardList
+;   {:id Long
+;    :identifier s/Str
+;    :currentState s/Str})
 
 (s/defschema BoardList
   {:data {:simulations_list [BoardNoData]}
@@ -62,26 +62,21 @@
             (GET "/" []
                  :return BoardList
                  :summary "get all simulations"
-                 (let [board-list (dino/get-all-boards)
-                       got-list (dino/format-board-list)]
+                 (let [board-list (dino/get-all-boards)]
                    (if (empty? board-list)
                      (ok {:data {:simulations_list []}
                           :message "Simulation list was returned successfully"})
-                     (if (nil? got-list)
-                       (bad-request "The simulation list could not be retrieved")
-                       (ok {:data {:simulations_list board-list}
-                            :message "Simulation list was returned successfully"})))))
+                     (ok {:data {:simulations_list board-list}
+                                :message "Simulation list was returned successfully"}))))
 
             (GET "/:simulationId" []
-                 :return FormattedBoard
+                 :return Board
                  :summary "get a simulation given its ID"
                  :path-params [simulationId :- (describe Long "Simulation ID")]
                  (let [got-board (dino/get-board simulationId)]
                    (if (nil? got-board)
                      (not-found "Simulation does not exists")
-                     (ok {:data {:id (:id got-board)
-                                 :identifier (:identifier got-board)
-                                 :currentState (dino/format-board got-board)}
+                     (ok {:data got-board
                           :message "Simulation was returned successfully"}))))
 
             (GET "/:simulationId/elements/:col/:row" []
@@ -94,11 +89,11 @@
                      (not-found "Simulation does not exists")
                      (if (nil? got-element)
                        (bad-request "The given position is invalid")
-                       (ok {:data {:identifier (str "s" simulationId "-col" col "-row" row) :position_state got-element}
+                       (ok {:data {:identifier (str "s" simulationId "-col" col "-row" row) :element got-element}
                             :message "Element was returned successfully"})))))
 
             (POST "/" []
-                  :return FormattedBoard
+                  :return Board
                   :summary "create a simulation"
                   (let [created-board (dino/create-board)
                         added-board (dino/add-board created-board)]
@@ -106,13 +101,11 @@
                       (bad-request "Simulation could not be created")
                       (if (nil? added-board)
                         (bad-request "The simulation could not be added to our simulation list")
-                        (ok {:data {:id (:id added-board)
-                                    :identifier (:identifier added-board)
-                                    :currentState (dino/format-board added-board)}
+                        (ok {:data added-board
                              :message "Simulation created with success"})))))
 
             (POST "/:simulationId/dinos/:col/:row" []
-                  :return FormattedBoard
+                  :return Board
                   :path-params [simulationId :- (describe Long "Simulation ID"), col :- (describe Long "Collumn to be added"), row :- (describe Long "Row to be added")]
                   :summary "create a dino inside an existing simulation"
                   (let [got-board (dino/get-board simulationId)
@@ -124,17 +117,15 @@
                         (bad-request "Position is invalid, empty or already taken")
                         (if (nil? updated)
                           (bad-request "The simulation could not be updated")
-                          (ok {:data {:id (:id added-dino)
-                                      :identifier (:identifier added-dino)
-                                      :currentState (dino/format-board added-dino)}
+                          (ok {:data added-dino
                                :message "Dino created with success"}))))))
 
             (POST "/:simulationId/robots/:col/:row" []
-                  :return FormattedBoard
+                  :return Board
                   :path-params [simulationId :- (describe Long "Simulation ID"), col :- (describe Long "Collumn to be added"), row :- (describe Long "Row to be added")]
-                  :query-params [{direction :- (describe (s/enum "Looking up" "Looking down" "Looking left" "Looking right") "Direction it will be facing. If empty, it defaults to **Looking up**") "Looking up"}]
+                  :query-params [{direction :- (describe (s/enum "lookingUp" "lookingDown" "lookingLeft" "lookingRight") "Direction it will be facing. If empty, it defaults to **lookingUp**") "lookingUp"}]
                   :summary "create a robot inside an existing simulation"
-                  (let [dir-map {"Looking up" :T, "Looking down" :B, "Looking left" :L, "Looking right" :R}
+                  (let [dir-map {"lookingUp" :T, "lookingDown" :B, "lookingLeft" :L, "lookingRight" :R}
                         got-board (dino/get-board simulationId)
                         added-robot (dino/add-robot col row (dir-map direction) got-board)
                         updated (dino/update-board added-robot)]
@@ -144,14 +135,12 @@
                         (bad-request "Position is invalid, empty or already taken")
                         (if (nil? updated)
                           (bad-request "The simulation could not be updated")
-                          (ok {:data {:id (:id added-robot)
-                                      :identifier (:identifier added-robot)
-                                      :currentState (dino/format-board added-robot)}
+                          (ok {:data added-robot
                                :message "Robot created with success"}))))))
 
 
             (POST "/:simulationId/instructions/:col/:row" []
-                  :return FormattedBoard
+                  :return Board
                   :path-params [simulationId :- (describe Long "Simulation ID"), col :- (describe Long "Collumn to be accessed"), row :- (describe Long "Row to be accessed")]
                   :query-params [{instruction :- (describe (s/enum "goForward" "goBackwards" "turnLeft" "turnRight") "Action to be executed. If empty, it defaults to **goForward**") "goForward"}]
                   :summary "move/rotate a robot inside an existing simulation"
@@ -165,14 +154,12 @@
                         (bad-request "Action is invalid")
                         (if (nil? updated)
                           (bad-request "The simulation could not be updated")
-                          (ok {:data {:id (:id action-robot)
-                                      :identifier (:identifier action-robot)
-                                      :currentState (dino/format-board action-robot)}
+                          (ok {:data action-robot
                                :message "Action was executed successfully"}))))))
 
 
             (POST "/:simulationId/attacks/:col/:row" []
-                  :return FormattedBoard
+                  :return Board
                   :path-params [simulationId :- (describe Long "Simulation ID"), col :- (describe Long "Collumn to be accessed"), row :- (describe Long "Row to be accessed")]
                   :query-params [{attackDirection :- (describe (s/enum "up" "down" "toTheLeft" "toTheRight") "Direction in which the Robot will attack. If empty, it defaults to **up**") "up"}]
                   :summary "send an attack command to a robot inside an existing simulation"
@@ -186,9 +173,7 @@
                         (bad-request "Action is invalid")
                         (if (nil? updated-att)
                           (bad-request "The simulation could not be updated")
-                          (ok {:data {:id (:id attack-robot)
-                                      :identifier (:identifier attack-robot)
-                                      :currentState (dino/format-board attack-robot)}
+                          (ok {:data attack-robot
                                :message "Action was executed successfully"}))))))
 
             (DELETE "/:simulationId" []

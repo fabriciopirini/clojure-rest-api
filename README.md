@@ -1,15 +1,30 @@
 # Robot _VS_ Dino
 
-## TODO
+## About
 
-<!-- - DONE :white_check_mark: -->
-- Warn when trying to move outside the limits
+This project is an application to simulate a fight between Robots and Dinosaurs on a 50x50 grid and, via API, it is be possible to place new Robots and Dinosaurs and issue movements and attacks to the machines. It is possible to create and maintain more than one simulation at time and check their current states.
+
+Features:
+- Create a new simulation;
+- Get list of created simulations;
+- Get simulation current state;
+- Get the element in certain position on simulation;
+- Place a new dino inside a simulation;
+- Place a new robot inside a simulation and choose its facing direction;
+- Move/rotate a robot on desired simulation;
+- Issue an order to a robot to attack on desired simulation;
+- Delete a simulation;
+- Delete an element from desired  simulation;
+
+## Documentation
+
+This README contains the documentation with all endpoints and how to run the code. Swagger is implemented and it has a duplicate of this docs and it is another way to test the application. Even though it is set up, everything will run fine via UNIX command.
 
 ## How to Run
 
 There are 3 alternatives to run this project. For these commands to work, they must all be run inside the project root folder.
 
-**Due to the addition of a method in the java.util.Collection interface on JDK 11, this project must run using JDK 9.** [Link to explanation](https://www.deps.co/blog/how-to-upgrade-clojure-projects-to-use-java-11/#java-util-collection-toarray)
+**Due to the addition of a method in the java.util.Collection interface on JDK 11, this project must run using JDK 8.** [Link to explanation](https://www.deps.co/blog/how-to-upgrade-clojure-projects-to-use-java-11/#java-util-collection-toarray)
 
 ### Starting a web server
 
@@ -56,7 +71,7 @@ GET /simulations/{simulationId}/elements/{col}/{row}
 
 POST /simulations
 POST /simulations/{simulationId}/dinos/{col}/{row}
-POST /simulations/{simulationId}/robots/{col}/{row}/{direction}
+POST /simulations/{simulationId}/robots/{col}/{row}?direction={direction}
 POST /simulations/{simulationId}/instructions/{col}/{row}?instruction={instruction}
 POST /simulations/{simulationId}/attacks/{col}/{row}?attackDirection={attackDirection}
 
@@ -139,7 +154,7 @@ Subsequent response definitions will only detail the expected value of the `data
 }
 ```
 
-### Get the element in that position on simulation
+### Get the element in certain position on simulation
 
 **Definition**
 
@@ -160,16 +175,15 @@ Subsequent response definitions will only detail the expected value of the `data
 ```json
 {
   "identifier": "s1-col3-row4",
-  "position_state": "D",
+  "element": "D",
 }
 ```
-
 
 ### Place a new dino inside a simulation
 
 **Definition**
 
-`POST /simulations/dino/{simulationId}/{col}/{row}`
+`POST /simulations/{simulationId}/dinos/{col}/{row}`
 
 **Arguments**
 
@@ -183,8 +197,8 @@ If the simulation does not exists or the position is invalid or already taken, t
 **Response**
 
 - `200 OK` on success
-- `400 Bad Request` if the position is invalid, empty or already taken or the simulation could not be updated on the simulation list
-- `404 Not Found` if the simulation was not found
+- `400 Bad Request` if the position is invalid, empty or already taken
+- `404 Not Found` if the simulation does not exists
 
 ```json
 {
@@ -198,18 +212,18 @@ If the simulation does not exists or the position is invalid or already taken, t
 }
 ```
 
-### Place a new robot inside a simulation
+### Place a new robot inside a simulation and choose its facing direction
 
 **Definition**
 
-`POST /simulations/robot/{simulationId}/{col}/{row}/{direction}`
+`POST /simulations/{simulationId}/robots/{col}/{row}?direction={direction}`
 
 **Arguments**
 
 - `"simulationId":number` id of simulation
 - `"col":number` collumn to be accessed
 - `"row":number` row to be accessed
-- `"direction":keyword` single letter defining the direction. Being those looking **T**op, **B**ottom, **R**ight, **L**eft
+- `"direction":string (optional)` single letter defining the direction. Being those **lookingUp**, **lookingDown**, **lookingLeft** or **lookingRight**
 
 
 If the simulation does not exists or the position is invalid or already taken, the request fails and the simulation keeps unchanged.
@@ -218,7 +232,7 @@ If the simulation does not exists or the position is invalid or already taken, t
 
 - `200 OK` on success
 - `400 Bad Request` if the position is invalid, empty or already taken
-- `404 Not Found` if the simulation was not found
+- `404 Not Found` if the simulation does not exists
 
 ```json
 {
@@ -237,7 +251,7 @@ If the simulation does not exists or the position is invalid or already taken, t
 **Response**
 
 - `200 OK` on success
-- `404 Not Found` if the simulation already exists
+- `400 Bad Request` if the simulation could not be created
 
 ```json
 {
@@ -262,7 +276,7 @@ If the simulation does not exists or the position is invalid or already taken, t
 - `"simulationId":number` id of simulation
 - `"col":number` collumn to be accessed
 - `"row":number` row to be accessed
-- `"instruction":string` instruction to be performed. Being those goForward, goBackwards, turnLeft or turnRight.
+- `"instruction":string (optional)` instruction to be performed. Being those **goForward**, **goBackwards**, **turnLeft** or **turnRight**.
 
 If the simulation does not exists or the position is invalid, empty or a dinosaur, the action fails and the simulation keeps unchanged.
 
@@ -270,7 +284,7 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 
 - `200 OK` on success
 - `400 Bad Request` if the position is invalid, empty or a dinosaur
-- `404 Not Found` if the simulation was not found
+- `404 Not Found` if the simulation does not exists
 
 ```json
 {
@@ -284,7 +298,7 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 }
 ```
 
-### Sends an action to a robot on desired simulation
+### Issue an order to a robot to attack on desired simulation
 
 **Definition**
 
@@ -295,7 +309,7 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 - `"simulationId":number` id of simulation
 - `"col":number` collumn to be accessed
 - `"row":number` row to be accessed
-- `"attackDirection":string` action to be performed. Being those up, down, toTheLeft or toTheRight
+- `"attackDirection":string (optional)` action to be performed. Being those **up**, **down**, **toTheLeft** or **toTheRight**
 
 If the simulation does not exists or the position is invalid, empty or a dinosaur, the action fails and the simulation keeps unchanged.
 
@@ -303,7 +317,7 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 
 - `200 OK` on success
 - `400 Bad Request` if the position is invalid, empty or a dinosaur
-- `404 Not Found` if the simulation was not found
+- `404 Not Found` if the simulation does not exists
 
 ```json
 {
@@ -342,7 +356,7 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 
 **Definition**
 
-`DELETE /simulations/{simulationId}/{col}/{row}`
+`DELETE /simulations/{simulationId}/elements/{col}/{row}`
 
 **Arguments**
 
@@ -368,14 +382,12 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 }
 ```
 
-
 ## Project Decisions
 
-- Use simulation indexes from 1 to 2500 instead of 0 to 2499;
-- Use a 1D vector instead of implementing a new 2D data structure;
-- Use simple characters to show dinos and robots + its directions instead of
-more complex data structure;
-- Adoption of TDD technique;
-- Usage of Clojure standard testing library (clojure.test);
-- Use Docker to run Uberjar file;
-- Use Swagger for API testing and documentation;
+- **Use a 1D vector instead of implementing a new 2D data structure**: A 1D vector was preferred in order to not have a simple and straightforward implementation of a matrix on Clojure so it was chosen to use a simple structure to simulate it;
+- **Use simple characters to show dinos and robots + its directions instead of
+more complex data structure**: Since just a few directions were used, they could be expressed as single characters;
+- **Adoption of TDD technique**: The Test-Driven Development has been chosen in order to help a better and healthier coding of the application and it helped to speed up the process since the feedback for all changes are immediate;
+- **Usage of Clojure standard testing library (clojure.test)**: The native library is simple and powerful enough and fits perfectly the test cases for this project;
+- **Use Docker and Uberjar file**: Docker and Uberjar were set up in order to make the portability, running and testing easier and painless;
+- **Use Swagger for API testing and documentation**: Swagger was picked to provide a nice interface to easily test all endpoints with instant and a visual feedback;

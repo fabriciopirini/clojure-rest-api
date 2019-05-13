@@ -7,8 +7,8 @@
 
 (deftest create-board-test
   (testing "Check board dimensions and elements on initialization"
-    (is (= (* board-dimension board-dimension) (count (:simulation_state board))))
-    (is (= '#{"⛶"} (set (:simulation_state board))))))
+    (is (= (* board-dimension board-dimension) (count (:currentState board))))
+    (is (= '#{"⛶"} (set (:currentState board))))))
 
 (deftest add-board-test
   (testing "Check if board was added to board list"
@@ -20,12 +20,12 @@
                   (dino/add-board board)
                   (dino/delete-board  1)
                   (dino/get-board 1))))
-    (is (= (:simulation_state board)
+    (is (= (:currentState board)
            (do (dino/reset-all-boards)
                (dino/add-board (dino/create-board))
                (dino/add-board (dino/create-board))
                (dino/delete-board  1)
-               (:simulation_state (dino/get-board 2)))))))
+               (:currentState (dino/get-board 2)))))))
 
 (deftest reset-all-boards-test
   (testing "Check if the board list and IDs are being reset"
@@ -55,7 +55,7 @@
 (deftest get-element-test
   (testing "The transformation from collumn and row to vector position"
     (is (= "⛶" (dino/get-element 1 1 board)))
-    (is (= "🅃" (dino/get-element 3 1 (dino/add-robot 3 1 board))))))
+    (is (= "T" (dino/get-element 3 1 (dino/add-robot 3 1 board))))))
 
 (deftest inside-board?-test
   (testing "The position provided is inside the board")
@@ -82,15 +82,15 @@
 
 (deftest add-robot-test
   (testing "Add a robot to the simulation"
-    (is (= "🅁" (dino/get-element 2 3 (dino/add-robot 2 3 :R board))))
-    (is (= "🄱" (dino/get-element 3 2 (dino/add-robot 3 2 :B board))))
-    (is (= "🅃" (dino/get-element 4 4 (dino/add-robot 4 4 board))))
+    (is (= "R" (dino/get-element 2 3 (dino/add-robot 2 3 :R board))))
+    (is (= "B" (dino/get-element 3 2 (dino/add-robot 3 2 :B board))))
+    (is (= "T" (dino/get-element 4 4 (dino/add-robot 4 4 board))))
     (is (nil? (dino/add-robot 1 2 (dino/add-robot 1 2 board))))))
 
 (deftest add-dino-test
   (testing "Add a dino to the simulation"
-    (is (= "🄳" (dino/get-element 2 3 (dino/add-dino 2 3 board))))
-    (is (= "🄳" (dino/get-element 3 2 (dino/add-dino 3 2 board))))
+    (is (= "D" (dino/get-element 2 3 (dino/add-dino 2 3 board))))
+    (is (= "D" (dino/get-element 3 2 (dino/add-dino 3 2 board))))
     (is (= "⛶" (dino/get-element 4 5 (dino/add-dino 4 4 board))))
     (is (nil? (dino/add-dino 1 2 (dino/add-dino 1 2 board))))))
 
@@ -103,7 +103,7 @@
 
 (deftest move-element-test
   (testing "The element is being moved to a new valid position"
-    (is (= ["🅃", "⛶"]
+    (is (= ["T", "⛶"]
            [(dino/get-element 2 2 (dino/move-element 2 3 2 2 (dino/add-robot 2 3 :T board)))
             (dino/get-element 2 3 (dino/move-element 2 3 2 2 (dino/add-robot 2 3 :T board)))]))
     (is (= [nil nil]
@@ -112,8 +112,8 @@
 
 (deftest turn-element-test
   (testing "The element is being moved to a new valid position"
-    (is (= "🅁" (dino/get-element 2 3 (dino/turn-element 2 3 ["🅃" :R] (dino/add-robot 2 3 :T board)))))
-    (is (= "🅃" (dino/get-element 5 5 (dino/turn-element 5 5 ["🅁" :L] (dino/add-robot 5 5 :R board)))))))
+    (is (= "R" (dino/get-element 2 3 (dino/turn-element 2 3 ["T" :R] (dino/add-robot 2 3 :T board)))))
+    (is (= "T" (dino/get-element 5 5 (dino/turn-element 5 5 ["R" :L] (dino/add-robot 5 5 :R board)))))))
 
 (deftest robot-attack-test
   (testing "A robot is attacking a valid empty space or a dino"
@@ -124,6 +124,6 @@
 (deftest take-action-test
   (testing "Send any of the following actions: turn left, turn right,
            move forward and move backwards"
-    (is (= "🅃" (dino/get-element 2 2 (dino/take-action 2 3 :F (dino/add-robot 2 3 :T board)))))
-    (is (= "🅁" (dino/get-element 2 3 (dino/take-action 3 3 :B (dino/add-robot 3 3 :R board)))))
+    (is (= "T" (dino/get-element 2 2 (dino/take-action 2 3 :F (dino/add-robot 2 3 :T board)))))
+    (is (= "R" (dino/get-element 2 3 (dino/take-action 3 3 :B (dino/add-robot 3 3 :R board)))))
     (is (= "⛶" (dino/get-element 4 2 (dino/take-action 4 1 :A :B (dino/add-dino 4 2 (dino/add-robot 4 1 :R board))))))))
