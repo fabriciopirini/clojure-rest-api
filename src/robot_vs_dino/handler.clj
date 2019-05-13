@@ -27,12 +27,12 @@
 ;    :currentState s/Str})
 
 (s/defschema BoardList
-  {:data {:simulations_list [BoardNoData]}
+  {:data {:simulationsList [BoardNoData]}
    :message s/Str})
 
 (s/defschema Element
   {:data {:identifier s/Str
-          :position_state s/Str}
+          :element s/Str}
    :message s/Str})
 
 
@@ -64,9 +64,9 @@
                  :summary "get all simulations"
                  (let [board-list (dino/get-all-boards)]
                    (if (empty? board-list)
-                     (ok {:data {:simulations_list []}
+                     (ok {:data {:simulationsList []}
                           :message "Simulation list was returned successfully"})
-                     (ok {:data {:simulations_list board-list}
+                     (ok {:data {:simulationsList board-list}
                                 :message "Simulation list was returned successfully"}))))
 
             (GET "/:simulationId" []

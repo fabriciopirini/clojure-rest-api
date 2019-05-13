@@ -104,7 +104,7 @@ Subsequent response definitions will only detail the expected value of the `data
 
 ```json
 {
-  "simulations_list": [
+  "simulationsList": [
     {
       "id": 2,
       "identifier": "simulation-2",
