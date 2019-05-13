@@ -63,12 +63,12 @@
   (-> board-list deref vals reverse))
 
 (defn get-element-pos
-  "Returns the element position on vector due to its collumn and row numbers"
+  "Returns the element position on vector due to its column and row numbers"
   [col row]
   (dec (int (+ col (* (dec row) board-dimension)))))
 
 (defn get-element
-  "Returns the element from board due to its collumn and row numbers"
+  "Returns the element from board due to its column and row numbers"
   [col row board]
   (when (inside-board? col row)
     (get (:currentState board) (get-element-pos col row))))
@@ -105,40 +105,11 @@
           (println (get board i))
           (print (str (get board i) " ")))))))
 
-; (defn format-board
-;   "Format the current board to send it as a response"
-;   [board]
-;   (let [board (:currentState board)]
-;     (if (nil? board)
-;       "Invalid board"
-;       (let [board-str-let ""]
-;         (loop [i 0
-;                board-str board-str-let]
-;           (if (= i board-total-size)
-;             board-str
-;             (if (= (rem i board-dimension) (dec board-dimension))
-;               (recur (inc i) (str board-str (get board i) "\n"))
-;               (recur (inc i) (str board-str (get board i) " ")))))))))
-;
-; (defn format-board-list
-;   "Format the board list to send it as a response"
-;   []
-;   (let [board-list (vec (get-all-boards))]
-;     (when-not (empty? board-list)
-;       (loop [i 0
-;              new-list board-list]
-;         (if (= i (count board-list))
-;           new-list
-;           (recur (inc i)
-;                  (->> (get new-list i)
-;                       (format-board)
-;                       (assoc-in new-list [i :currentState]))))))))
-
 ;; Simulation
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn is-robot?
-  "Returns if element positioned on X collumn and Y row is a robot or not"
+  "Returns if element positioned on X column and Y row is a robot or not"
   [col row board]
   (let [element (get-element col row board)]
     (when (and (inside-board? col row)
@@ -146,7 +117,7 @@
       true)))
 
 (defn add-robot
-  "Returns board with new element positioned on X collumn and Y row,
+  "Returns board with new element positioned on X column and Y row,
   if successful; return nil, if not"
   ([col row board] (add-robot col row :T board))
   ([col row facing board]
@@ -156,7 +127,7 @@
                (assoc-in (:currentState board) [(get-element-pos col row)] (get-symbol facing))))))
 
 (defn add-dino
-  "Returns board with new element positioned on X collumn and Y row,
+  "Returns board with new element positioned on X column and Y row,
   if successful; return nil, if not"
   [col row board]
   (when (is-space-available? col row board)
@@ -164,7 +135,7 @@
               (assoc-in (:currentState board) [(get-element-pos col row)] "D"))))
 
 (defn remove-element
-  "Returns board with non-empty element positioned on X collumn and Y row replaced by an empty one, if successful; return nil, if not"
+  "Returns board with non-empty element positioned on X column and Y row replaced by an empty one, if successful; return nil, if not"
   [col row board]
   (when (and (inside-board? col row)
              (not= "⛶" (get-element col row board)))

@@ -15,17 +15,6 @@
    :identifier s/Str
    :currentState [s/Str]})
 
-; (s/defschema FormattedBoard
-;   {:data {:id Long
-;           :identifier s/Str
-;           :currentState s/Str}
-;    :message s/Str})
-
-; (s/defschema FormattedBoardList
-;   {:id Long
-;    :identifier s/Str
-;    :currentState s/Str})
-
 (s/defschema BoardList
   {:data {:simulationsList [BoardNoData]}
    :message s/Str})
@@ -49,15 +38,6 @@
 
    (context "/simulations" []
             :tags ["simulations"]
-            ;
-            ; (GET "/test" []
-            ;      ; :return Test
-            ;      :summary "get all simulations"
-            ;      (let [board (dino/create-board)]
-            ;        (ok {:data {:id (:id board)
-            ;                    :identifier (:identifier board)
-            ;                    :currentState (dino/format-board board)}
-            ;             :message "test"})))
 
             (GET "/" []
                  :return BoardList
@@ -82,7 +62,7 @@
             (GET "/:simulationId/elements/:col/:row" []
                  :return Element
                  :summary "get the element on given position inside the simulation"
-                 :path-params [simulationId :- (describe Long "Simulation ID"), col :- (describe Long "Collumn to be retrieved"), row :- (describe Long "Row to be retrieved")]
+                 :path-params [simulationId :- (describe Long "Simulation ID"), col :- (describe Long "Column to be retrieved"), row :- (describe Long "Row to be retrieved")]
                  (let [got-board (dino/get-board simulationId)
                        got-element (dino/get-element col row got-board)]
                    (if (nil? got-board)
@@ -106,7 +86,7 @@
 
             (POST "/:simulationId/dinos/:col/:row" []
                   :return Board
-                  :path-params [simulationId :- (describe Long "Simulation ID"), col :- (describe Long "Collumn to be added"), row :- (describe Long "Row to be added")]
+                  :path-params [simulationId :- (describe Long "Simulation ID"), col :- (describe Long "Column to be added"), row :- (describe Long "Row to be added")]
                   :summary "create a dino inside an existing simulation"
                   (let [got-board (dino/get-board simulationId)
                         added-dino (dino/add-dino col row got-board)
@@ -122,7 +102,7 @@
 
             (POST "/:simulationId/robots/:col/:row" []
                   :return Board
-                  :path-params [simulationId :- (describe Long "Simulation ID"), col :- (describe Long "Collumn to be added"), row :- (describe Long "Row to be added")]
+                  :path-params [simulationId :- (describe Long "Simulation ID"), col :- (describe Long "Column to be added"), row :- (describe Long "Row to be added")]
                   :query-params [{direction :- (describe (s/enum "lookingUp" "lookingDown" "lookingLeft" "lookingRight") "Direction it will be facing. If empty, it defaults to **lookingUp**") "lookingUp"}]
                   :summary "create a robot inside an existing simulation"
                   (let [dir-map {"lookingUp" :T, "lookingDown" :B, "lookingLeft" :L, "lookingRight" :R}
@@ -141,7 +121,7 @@
 
             (POST "/:simulationId/instructions/:col/:row" []
                   :return Board
-                  :path-params [simulationId :- (describe Long "Simulation ID"), col :- (describe Long "Collumn to be accessed"), row :- (describe Long "Row to be accessed")]
+                  :path-params [simulationId :- (describe Long "Simulation ID"), col :- (describe Long "Column to be accessed"), row :- (describe Long "Row to be accessed")]
                   :query-params [{instruction :- (describe (s/enum "goForward" "goBackwards" "turnLeft" "turnRight") "Action to be executed. If empty, it defaults to **goForward**") "goForward"}]
                   :summary "move/rotate a robot inside an existing simulation"
                   (let [dir-map {"goForward" :F, "goBackwards" :B, "turnLeft" :L, "turnRight" :R}
@@ -160,7 +140,7 @@
 
             (POST "/:simulationId/attacks/:col/:row" []
                   :return Board
-                  :path-params [simulationId :- (describe Long "Simulation ID"), col :- (describe Long "Collumn to be accessed"), row :- (describe Long "Row to be accessed")]
+                  :path-params [simulationId :- (describe Long "Simulation ID"), col :- (describe Long "Column to be accessed"), row :- (describe Long "Row to be accessed")]
                   :query-params [{attackDirection :- (describe (s/enum "up" "down" "toTheLeft" "toTheRight") "Direction in which the Robot will attack. If empty, it defaults to **up**") "up"}]
                   :summary "send an attack command to a robot inside an existing simulation"
                   (let [dir-map {"up" :T, "down" :B, "toTheLeft" :L, "toTheRight" :R}
@@ -187,7 +167,7 @@
 
             (DELETE "/:simulationId/elements/:col/:row" []
                  :summary "delete an element inside an existent simulation"
-                 :path-params [simulationId :- (describe Long "Simulation ID"), col :- (describe Long "Collumn to be accessed"), row :- (describe Long "Row to be accessed")]
+                 :path-params [simulationId :- (describe Long "Simulation ID"), col :- (describe Long "Column to be accessed"), row :- (describe Long "Row to be accessed")]
                  (let [got-board (dino/get-board simulationId)
                        removed-element (dino/remove-element col row got-board)
                        updated (dino/update-board removed-element)]

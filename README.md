@@ -163,7 +163,7 @@ Subsequent response definitions will only detail the expected value of the `data
 **Parameters**
 
 - `"simulationId":number` id of simulation
-- `"col":number` collumn to be accessed
+- `"col":number` column to be accessed
 - `"row":number` row to be accessed
 
 **Response**
@@ -188,7 +188,7 @@ Subsequent response definitions will only detail the expected value of the `data
 **Arguments**
 
 - `"simulationId":number` id of simulation
-- `"col":number` collumn to be accessed
+- `"col":number` column to be accessed
 - `"row":number` row to be accessed
 
 
@@ -221,7 +221,7 @@ If the simulation does not exists or the position is invalid or already taken, t
 **Arguments**
 
 - `"simulationId":number` id of simulation
-- `"col":number` collumn to be accessed
+- `"col":number` column to be accessed
 - `"row":number` row to be accessed
 - `"direction":string (optional)` single letter defining the direction. Being those **lookingUp**, **lookingDown**, **lookingLeft** or **lookingRight**
 
@@ -274,7 +274,7 @@ If the simulation does not exists or the position is invalid or already taken, t
 **Arguments**
 
 - `"simulationId":number` id of simulation
-- `"col":number` collumn to be accessed
+- `"col":number` column to be accessed
 - `"row":number` row to be accessed
 - `"instruction":string (optional)` instruction to be performed. Being those **goForward**, **goBackwards**, **turnLeft** or **turnRight**.
 
@@ -307,7 +307,7 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 **Arguments**
 
 - `"simulationId":number` id of simulation
-- `"col":number` collumn to be accessed
+- `"col":number` column to be accessed
 - `"row":number` row to be accessed
 - `"attackDirection":string (optional)` action to be performed. Being those **up**, **down**, **toTheLeft** or **toTheRight**
 
@@ -361,7 +361,7 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 **Arguments**
 
 - `"simulationId":number` id of simulation
-- `"col":number` collumn to be accessed
+- `"col":number` column to be accessed
 - `"row":number` row to be accessed
 
 **Response**
