@@ -57,8 +57,8 @@ GET /simulations/{simulationId}/elements/{col}/{row}
 POST /simulations
 POST /simulations/{simulationId}/dinos/{col}/{row}
 POST /simulations/{simulationId}/robots/{col}/{row}/{direction}
-POST /simulations/{simulationId}/instructions/{col}/{row}/{action}
-POST /simulations/{simulationId}/attacks/{col}/{row}/{action}
+POST /simulations/{simulationId}/instructions/{col}/{row}?instruction={instruction}
+POST /simulations/{simulationId}/attacks/{col}/{row}?attackDirection={attackDirection}
 
 DELETE /simulations/{simulationId}
 DELETE /simulations/{simulationId}/elements/{col}/{row}
@@ -94,17 +94,17 @@ Subsequent response definitions will only detail the expected value of the `data
       "id": 2,
       "identifier": "simulation-2",
       "currentState": [
-        "⛶", "🅃", "🄱",
+        "⛶", "T", "B",
         "⛶", "⛶", "⛶",
-        "⛶", "🄳", "⛶",
+        "⛶", "D", "⛶",
       ]
     },
     {
       "id": 1,
       "identifier": "simulation-1",
       "currentState": [
-        "🄳", "⛶", "⛶",
-        "⛶", "🄻", "🄳",
+        "D", "⛶", "⛶",
+        "⛶", "L", "D",
         "⛶", "⛶", "⛶",
       ]
     }
@@ -132,9 +132,9 @@ Subsequent response definitions will only detail the expected value of the `data
   "id": 1,
   "identifier": "simulation-1",
   "currentState": [
-    "⛶", "🅃", "🄱",
+    "⛶", "T", "B",
     "⛶", "⛶", "⛶",
-    "⛶", "🄳", "⛶",
+    "⛶", "D", "⛶",
   ]
 }
 ```
@@ -160,7 +160,7 @@ Subsequent response definitions will only detail the expected value of the `data
 ```json
 {
   "identifier": "s1-col3-row4",
-  "position_state": "🄳",
+  "position_state": "D",
 }
 ```
 
@@ -191,9 +191,9 @@ If the simulation does not exists or the position is invalid or already taken, t
   "id": 1,
   "identifier": "simulation-1",
   "currentState": [
-    "⛶", "🅃", "🄱",
+    "⛶", "T", "B",
     "⛶", "⛶", "⛶",
-    "⛶", "🄳", "⛶",
+    "⛶", "D", "⛶",
   ]
 }
 ```
@@ -223,9 +223,9 @@ If the simulation does not exists or the position is invalid or already taken, t
 ```json
 {
   "currentState": [
-    "⛶", "🅃", "🄱",
+    "⛶", "T", "B",
     "⛶", "⛶", "⛶",
-    "⛶", "🄳", "⛶",
+    "⛶", "D", "⛶",
   ]
 }
 ```
@@ -255,14 +255,14 @@ If the simulation does not exists or the position is invalid or already taken, t
 
 **Definition**
 
-`POST /simulations/instruction/{simulationId}/{col}/{row}/{action}`
+`POST /simulations/{simulationId}/instructions/{col}/{row}?instruction={instruction}`
 
 **Arguments**
 
 - `"simulationId":number` id of simulation
 - `"col":number` collumn to be accessed
 - `"row":number` row to be accessed
-- `"action":string` single letter defining one action. Being those move **F**orward, move **B**ackwards, turn **R**ight, turn **L**eft.
+- `"instruction":string` instruction to be performed. Being those goForward, goBackwards, turnLeft or turnRight.
 
 If the simulation does not exists or the position is invalid, empty or a dinosaur, the action fails and the simulation keeps unchanged.
 
@@ -277,9 +277,9 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
   "before": "col: 1, row: 3, direction: R",
   "after": "col: 2, row: 3, direction: R",
   "currentState": [
-    "⛶", "🅃", "🄱",
+    "⛶", "T", "B",
     "⛶", "⛶", "⛶",
-    "⛶", "🅁", "⛶",
+    "⛶", "R", "⛶",
   ]
 }
 ```
@@ -288,14 +288,14 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 
 **Definition**
 
-`POST /simulations/action/{simulationId}/{col}/{row}/{action}`
+`POST /simulations/{simulationId}/attacks/{col}/{row}?attackDirection={attackDirection}`
 
 **Arguments**
 
 - `"simulationId":number` id of simulation
 - `"col":number` collumn to be accessed
 - `"row":number` row to be accessed
-- `"action":string` single letter defining one action. Being those move **F**orward, move **B**ackwards, turn **R**ight, turn **L**eft or **A**ttack
+- `"attackDirection":string` action to be performed. Being those up, down, toTheLeft or toTheRight
 
 If the simulation does not exists or the position is invalid, empty or a dinosaur, the action fails and the simulation keeps unchanged.
 
@@ -310,9 +310,9 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
   "before": "col: 1, row: 3, direction: R",
   "after": "col: 2, row: 3, direction: R",
   "currentState": [
-    "⛶", "🅃", "🄱",
+    "⛶", "T", "B",
     "⛶", "⛶", "⛶",
-    "⛶", "🅁", "⛶",
+    "⛶", "R", "⛶",
   ]
 }
 ```
@@ -361,7 +361,7 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
   "id": 1,
   "identifier": "simulation-1",
   "currentState": [
-    "⛶", "🅃", "🄱",
+    "⛶", "T", "B",
     "⛶", "⛶", "⛶",
     "⛶", "⛶", "⛶",
   ]

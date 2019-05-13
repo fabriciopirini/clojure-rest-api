@@ -10,6 +10,11 @@
           :currentState [s/Str]}
    :message s/Str})
 
+(s/defschema BoardNoData
+  {:id Long
+   :identifier s/Str
+   :currentState [s/Str]})
+
 (s/defschema FormattedBoard
   {:data {:id Long
           :identifier s/Str
@@ -22,7 +27,7 @@
    :currentState s/Str})
 
 (s/defschema BoardList
-  {:data {:simulations_list [FormattedBoardList]}
+  {:data {:simulations_list [BoardNoData]}
    :message s/Str})
 
 (s/defschema Element
@@ -40,7 +45,7 @@
                      :description "Application to simulate a fight between Robots and Dinosaurs"
                      :version "1.0.0"}
               :tags [{:name "simulations", :description "basic functionality for simulations"}]
-              :produces ["application/x-yaml" "application/json"]}}}
+              :produces ["application/json"]}}}
 
    (context "/simulations" []
             :tags ["simulations"]
@@ -64,7 +69,7 @@
                           :message "Simulation list was returned successfully"})
                      (if (nil? got-list)
                        (bad-request "The simulation list could not be retrieved")
-                       (ok {:data {:simulations_list got-list}
+                       (ok {:data {:simulations_list board-list}
                             :message "Simulation list was returned successfully"})))))
 
             (GET "/:simulationId" []
@@ -148,9 +153,9 @@
             (POST "/:simulationId/instructions/:col/:row" []
                   :return FormattedBoard
                   :path-params [simulationId :- (describe Long "Simulation ID"), col :- (describe Long "Collumn to be accessed"), row :- (describe Long "Row to be accessed")]
-                  :query-params [{instruction :- (describe (s/enum "Go forward" "Go backwards" "Turn left" "Turn right") "Action to be executed. If empty, it defaults to **Go forward**") "Go forward"}]
+                  :query-params [{instruction :- (describe (s/enum "goForward" "goBackwards" "turnLeft" "turnRight") "Action to be executed. If empty, it defaults to **goForward**") "goForward"}]
                   :summary "move/rotate a robot inside an existing simulation"
-                  (let [dir-map {"Go forward" :F, "Go backwards" :B, "Turn left" :L, "Turn right" :R}
+                  (let [dir-map {"goForward" :F, "goBackwards" :B, "turnLeft" :L, "turnRight" :R}
                         got-board (dino/get-board simulationId)
                         action-robot (dino/take-action col row (dir-map instruction) got-board)
                         updated (dino/update-board action-robot)]
@@ -169,9 +174,9 @@
             (POST "/:simulationId/attacks/:col/:row" []
                   :return FormattedBoard
                   :path-params [simulationId :- (describe Long "Simulation ID"), col :- (describe Long "Collumn to be accessed"), row :- (describe Long "Row to be accessed")]
-                  :query-params [{attackDirection :- (describe (s/enum "Up" "Down" "To the left" "To the right") "Direction in which the Robot will attack. If empty, it defaults to **Up**") "Up"}]
+                  :query-params [{attackDirection :- (describe (s/enum "up" "down" "toTheLeft" "toTheRight") "Direction in which the Robot will attack. If empty, it defaults to **up**") "up"}]
                   :summary "send an attack command to a robot inside an existing simulation"
-                  (let [dir-map {"Up" :T, "Down" :B, "To the left" :L, "To the right" :R}
+                  (let [dir-map {"up" :T, "down" :B, "toTheLeft" :L, "toTheRight" :R}
                         got-board (dino/get-board simulationId)
                         attack-robot (dino/take-action col row :A (dir-map attackDirection) got-board)
                         updated-att (dino/update-board attack-robot)]
