@@ -1,10 +1,9 @@
 (ns robot-vs-dino.core)
 
-
 ;; Definitions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defonce board-dimension 50)
+(defonce board-dimension 5)
 (defonce board-total-size (* board-dimension board-dimension))
 
 (defonce id-seq (atom 0))
@@ -19,15 +18,16 @@
 (defn create-board
   "Generates 50x50 board"
   []
-  (let [id (swap! id-seq inc)]
-    {:id id :identifier (str "simulation-" id) :currentState (vec (repeat board-total-size "⛶"))}))
+  {:currentState (vec (repeat board-total-size "⛶"))})
 
 (defn add-board
   "Add board to board list"
   [new-board]
   (when-not (nil? new-board)
-    (swap! board-list assoc (:id new-board) new-board)
-    (get-board (:id new-board))))
+    (let [id (swap! id-seq inc)
+          board (assoc new-board :id id :identifier (str "simulation-" id))]
+      (swap! board-list assoc (:id board) board)
+      (get-board (:id board)))))
     ; (assoc new-board :id id)))
 
 (defn update-board

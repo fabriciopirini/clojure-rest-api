@@ -28,16 +28,16 @@ There are 3 alternatives to run this project. For these commands to work, they m
 
 ### Starting a web server
 
-```
-lein ring server
-```
-
-### Running it in a container with Docker
+Running the command below will start the API and the Swagger UI will be available on `localhost:3000` for documentation and API consumption. The port 3000 will be the default if the parameter is omitted.
 
 ```
-docker build --tag=robot_vs_dino .
+lein ring server <PORT>
+```
 
-docker run -p 8080:3000 robot_vs_dino
+If Swagger is not needed, run the following command:
+
+```
+lein ring server-headless <PORT>
 ```
 
 ### Executable jar file
@@ -52,6 +52,16 @@ This generates a jar file with all dependencies and execute it with:
 
 ```
 java -jar target/uberjar/robot-vs-dino.jar
+```
+
+### Running it in a container using Docker
+
+These commands below will create a container named *robot_vs_dino* with only JRE 8 so it can run this project. **PS: The uberjar file must be generated using the command `lein ring uberjar` before proceding**.
+
+```
+docker build --tag=robot_vs_dino .
+
+docker run -p 8080:3000 robot_vs_dino
 ```
 
 ## Testing
