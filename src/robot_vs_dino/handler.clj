@@ -4,6 +4,9 @@
             [robot-vs-dino.core :as dino]
             [schema.core :as s]))
 
+;; Schemas
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (s/defschema Board
   {:data {:id Long
           :identifier s/Str
@@ -39,6 +42,9 @@
    (context "/simulations" []
      :tags ["simulations"]
 
+     ;; GETs
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
      (GET "/" []
        :return BoardList
        :summary "get all simulations"
@@ -71,6 +77,9 @@
              (bad-request "The given position is invalid")
              (ok {:data {:identifier (str "s" simulationId "-col" col "-row" row) :element got-element}
                   :message "Element was returned successfully"})))))
+
+     ;; POSTs
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
      (POST "/" []
        :return Board
@@ -155,6 +164,9 @@
                (bad-request "The simulation could not be updated")
                (ok {:data attack-robot
                     :message "Action was executed successfully"}))))))
+
+     ;; DELETEs
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
      (DELETE "/:simulationId" []
        :summary "delete a simulation given its ID"

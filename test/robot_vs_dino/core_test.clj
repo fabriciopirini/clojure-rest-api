@@ -2,8 +2,14 @@
   (:require [midje.sweet :refer :all]
             [robot-vs-dino.core :as dino]))
 
+;; Definitions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (def board-dimension dino/board-dimension)
 (def board (dino/create-board))
+
+;; Core Functions Tests
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (facts "Unit testing for core functions"
   (fact "Check board dimensions and elements on initialization"

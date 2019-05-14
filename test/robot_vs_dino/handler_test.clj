@@ -5,11 +5,20 @@
             [robot-vs-dino.handler :as handler]
             [ring.mock.request :as mock]))
 
+;; Definitions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (def board-dimension dino/board-dimension)
 (def board-total-size dino/board-total-size)
 
+;; Body parser
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn parse-body [body]
   (cheshire/parse-string (slurp body) true))
+
+;; Endpoints Tests
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (facts "Robot VS Dino API tests"
   (fact "Test GET request to /simulations returns expected response"

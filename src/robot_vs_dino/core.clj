@@ -28,7 +28,6 @@
           board (assoc new-board :id id :identifier (str "simulation-" id))]
       (swap! board-list assoc (:id board) board)
       (get-board (:id board)))))
-    ; (assoc new-board :id id)))
 
 (defn update-board
   "Update existing board on board list"

@@ -14,6 +14,3 @@
                                             [proto-repl "0.3.1"]]
                              :plugins [[lein-ring "0.12.5"]
                                        [lein-midje "3.2.1"]]}})
-                       ; :user {:dependencies [[pjstadig/humane-test-output "0.9.0"]]
-                       ;        :injections [(require 'pjstadig.humane-test-output)
-                       ;                     (pjstadig.humane-test-output/activate!)]}})
