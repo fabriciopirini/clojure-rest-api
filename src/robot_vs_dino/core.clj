@@ -3,7 +3,7 @@
 ;; Definitions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defonce board-dimension 5)
+(defonce board-dimension 50)
 (defonce board-total-size (* board-dimension board-dimension))
 
 (defonce id-seq (atom 0))
