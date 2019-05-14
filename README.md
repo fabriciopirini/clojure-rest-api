@@ -66,10 +66,10 @@ docker run -p 8080:3000 robot_vs_dino
 
 ## Testing
 
-To run the implemented tests, use the following command:
+To run the implemented tests using Midje, use the following command:
 
 ```
-lein test
+lein midje
 ```
 
 ## List of Endpoints available
@@ -398,6 +398,6 @@ If the simulation does not exists or the position is invalid, empty or a dinosau
 - **Use simple characters to show dinos and robots + its directions instead of
 more complex data structure**: Since just a few directions were used, they could be expressed as single characters;
 - **Adoption of TDD technique**: The Test-Driven Development has been chosen in order to help a better and healthier coding of the application and it helped to speed up the process since the feedback for all changes are immediate;
-- **Usage of Clojure standard testing library (clojure.test)**: The native library is simple and powerful enough and fits perfectly the test cases for this project;
+- **Usage of Midje testing library**: The Midje library is simple, powerful and popular between Clojure developers fitting perfectly the test cases for this project;
 - **Use Docker and Uberjar file**: Docker and Uberjar were set up in order to make the portability, running and testing easier and painless;
 - **Use Swagger for API testing and documentation**: Swagger was picked to provide a nice interface to easily test all endpoints with instant and a visual feedback;
